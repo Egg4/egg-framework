@@ -10,6 +10,11 @@ class Pdo extends AbstractDatabase
     public function __construct(array $settings = [])
     {
         $settings = array_merge([
+            'driver'        => 'mysql',
+            'host'          => 'localhost',
+            'dbname'        => 'test',
+            'login'         => 'root',
+            'password'      => '',
             'persistent'    => true,
             'autocommit'    => true,
             'timeout'       => 30,
@@ -18,13 +23,14 @@ class Pdo extends AbstractDatabase
 
         parent::__construct($settings);
 
-        $this->pdo = new \PDO($settings['dsn'], $settings['login'], $settings['password'], [
+        $dsn = sprintf('%s:host=%s;dbname=%s', $settings['driver'], $settings['host'], $settings['dbname']);
+        $this->pdo = new \PDO($dsn, $settings['login'], $settings['password'], [
             \PDO::ATTR_PERSISTENT           => $settings['persistent'],
             \PDO::ATTR_ERRMODE              => \PDO::ERRMODE_EXCEPTION,
             \PDO::ATTR_AUTOCOMMIT           => $settings['autocommit'],
             \PDO::ATTR_TIMEOUT              => $settings['timeout'],
         ]);
-        if (strpos($settings['dsn'], 'mysql') === 0 AND $settings['mysqlUtf8']) {
+        if ($settings['driver'] == 'mysql' AND $settings['mysqlUtf8']) {
             $this->pdo->setAttribute(\PDO::MYSQL_ATTR_INIT_COMMAND, 'SET NAMES utf8');
         }
     }

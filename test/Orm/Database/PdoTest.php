@@ -13,7 +13,9 @@ class PdoTest extends \PHPUnit\Framework\TestCase
     public static function setUpBeforeClass()
     {
         static::$database = new Database([
-            'dsn'       => sprintf('mysql:host=%s;dbname=%s', 'localhost', 'test'),
+            'driver'    => 'mysql',
+            'host'      => 'localhost',
+            'dbname'    => 'test',
             'login'     => 'root',
             'password'  => '536546',
         ]);
