@@ -2,40 +2,68 @@
 
 namespace Egg;
 
-use Egg\Interfaces\ServiceInterface as Service;
-use Egg\Interfaces\ComponentInterface as Component;
-use Egg\Component\Collection as ComponentCollection;
+use Psr\Http\Message\ServerRequestInterface;
+use Slim\Interfaces\RouterInterface;
+use Slim\CallableResolver;
+use FastRoute\Dispatcher;
+use RuntimeException;
+use SplStack;
+use SplDoublyLinkedList;
 
-class App
+class App extends \Slim\App
 {
-    protected $slimApp;
-    protected $components;
-
     public function __construct($container = [])
     {
-        $container['settings']['determineRouteBeforeAppMiddleware'] = true;
+        $settings = [];
+        $settings['determineRouteBeforeAppMiddleware'] = true;
+        $container['settings'] = $settings;
 
-        $this->slimApp = new \Slim\App($container);
-        $this->components = new ComponentCollection();
-    }
+        if (!isset($container['components'])) {
+            $container['components'] = [];
+        }
 
-    public function service(Service $service)
-    {
+        $container['callableResolver'] = function ($container) {
+            return new CallableResolver($container);
+        };
 
-    }
-
-    public function component(Component $component)
-    {
-        $this->components->set(get_class($component), $component);
+        parent::__construct($container);
     }
 
     public function run($silent = false)
     {
-        $middlewareStack = array_reverse($this->components->stack());
-        foreach($middlewareStack as $middleware) {
-            $this->slimApp->add($middleware);
+        $container = $this->getContainer();
+        $componentCollection = new \Egg\Component\Collection();
+        foreach($container['components'] as $component) {
+            $componentCollection->set(get_class($component), $component);
+            $component->setContainer($container);
+            $component->init();
         }
 
-        return $this->slimApp->run($silent);
+        $stack = array_reverse($componentCollection->stack());
+        foreach($stack as $component) {
+            $this->add($component);
+        }
+
+        return parent::run($silent);
+    }
+
+    protected function dispatchRouterAndPrepareRoute(ServerRequestInterface $request, RouterInterface $router)
+    {
+        return $router->dispatch($request);
+    }
+
+    protected function seedMiddlewareStack(callable $kernel = null)
+    {
+        if (!is_null($this->stack)) {
+            throw new RuntimeException('MiddlewareStack can only be seeded once.');
+        }
+        if ($kernel === null) {
+            $kernel = new \Egg\Component\Closure(function($request, $response) {
+                return $response;
+            });
+        }
+        $this->stack = new SplStack;
+        $this->stack->setIteratorMode(SplDoublyLinkedList::IT_MODE_LIFO | SplDoublyLinkedList::IT_MODE_KEEP);
+        $this->stack[] = $kernel;
     }
 }

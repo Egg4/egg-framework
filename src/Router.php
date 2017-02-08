@@ -4,32 +4,25 @@ namespace Egg;
 
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-class Router
+class Router extends \Slim\Router
 {
-    protected $slimRouter;
-
-    public function __construct()
-    {
-        $this->slimRouter = new \Slim\Router();
-    }
-
     public function map($name, $method, $pattern)
     {
         $callable = function($request, $response) {
             return $response;
         };
 
-        return $this->slimRouter->map([$method], $pattern, $callable)->setName($name);
+        return parent::map([$method], $pattern, $callable)->setName($name);
     }
 
-    public function pushGroup($pattern)
+    public function pushGroup($pattern, $callable = null)
     {
-        return $this->slimRouter->pushGroup($pattern, function() {});
+        return parent::pushGroup($pattern, function() {});
     }
 
     public function dispatch(Request $request)
     {
-        $routeInfo = $this->slimRouter->dispatch($request);
+        $routeInfo = parent::dispatch($request);
 
         if ($routeInfo[0] == \FastRoute\Dispatcher::NOT_FOUND) {
             throw new \Egg\Http\Exception(404, new \Egg\Http\Error(array(
@@ -49,7 +42,7 @@ class Router
         foreach ($routeInfo[2] as $k => $v) {
             $routeArguments[$k] = urldecode($v);
         }
-        $route = $this->slimRouter->lookupRoute($routeInfo[1]);
+        $route = parent::lookupRoute($routeInfo[1]);
         $route->prepare($request, $routeArguments);
         $request = $request->withAttribute('route', $route);
 
