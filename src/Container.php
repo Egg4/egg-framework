@@ -9,7 +9,7 @@ class Container extends PimpleContainer implements ContainerInterface
 {
     protected $callable;
 
-    public function __construct($input)
+    public function __construct(array $input = [])
     {
         if (is_callable($input)) {
             $this->callable = $input;
@@ -23,7 +23,7 @@ class Container extends PimpleContainer implements ContainerInterface
     public function offsetGet($id)
     {
         if (!$this->offsetExists($id) AND $this->callable) {
-            $value = call_user_func_array($this->callable, [$this, $id]);
+            $value = call_user_func_array($this->callable, [$id]);
             $this->offsetSet($id, $value);
         }
 

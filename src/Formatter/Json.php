@@ -13,6 +13,11 @@ class Json extends AbstractFormatter
 
     public function format(array $array)
     {
-        return json_encode($array);
+        $json = json_encode($array);
+        if (!$json) {
+            throw new \Exception('Json error: encoding error');
+        }
+
+        return $json;
     }
 }

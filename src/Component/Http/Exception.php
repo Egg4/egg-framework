@@ -32,6 +32,9 @@ class Exception extends AbstractComponent
             $response->getBody()->setContent($array);
         }
         catch (\Exception $exception) {
+            if ($this->container['environment']['APP_DEBUG']) {
+                throw $exception;
+            }
             $response = $response->withStatus(500);
             $array = $this->settings['serializer']->serialize(new \Egg\Http\Error(array(
                 'name'        => 'server_error',
