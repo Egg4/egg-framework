@@ -9,7 +9,7 @@ class Container extends PimpleContainer implements ContainerInterface
 {
     protected $callable;
 
-    public function __construct(array $input = [])
+    public function __construct($input = [])
     {
         if (is_callable($input)) {
             $this->callable = $input;
