@@ -15,9 +15,7 @@ class Accept extends AbstractComponent
             \Egg\Component\Http\Exception::class,
         ];
 
-        $this->settings = array_merge([
-            'contentTypes'  => ['application/json', 'application/xml'],
-        ], $settings);
+        $this->settings = $settings;
     }
 
     public function run(Request $request, Response $response, Component $next)
@@ -35,6 +33,7 @@ class Accept extends AbstractComponent
                 'description'   => sprintf('"Accept" header must be in: %s', implode(', ', $this->settings['contentTypes'])),
             )));
         }
+
         $response = $response->withHeader('Content-type', $contentType);
 
         $response = $next($request, $response);

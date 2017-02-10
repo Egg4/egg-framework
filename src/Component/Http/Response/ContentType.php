@@ -17,7 +17,7 @@ class ContentType extends AbstractComponent
         ];
 
         $this->settings = array_merge([
-            'contentTypes'  => ['application/json', 'application/xml'],
+            'charset'       => 'UTF-8',
         ], $settings);
     }
 
@@ -30,18 +30,27 @@ class ContentType extends AbstractComponent
             return $response;
         }
 
-        $keys = $this->settings['contentTypes'];
-        $contentType = array_shift($keys);
+        $contentType = false;
         if ($response->hasHeader('Content-Type')) {
             $contentTypeLine = $response->getHeaderLine('Content-Type');
             $contentTypes = $this->parseContentTypeLine($contentTypeLine);
             $contentType = $this->findFirstMatchedContentType($contentTypes);
+        }
+        if (!$contentType AND $request->hasHeader('Accept')) {
+            $acceptLine = $request->getHeaderLine('Accept');
+            $contentTypes = $this->parseAcceptLine($acceptLine);
+            $contentType = $this->findFirstMatchedContentType($contentTypes);
+        }
+        if (!$contentType) {
+            $keys = $this->settings['contentTypes'];
+            $contentType = array_shift($keys);
         }
 
         $formatter = $this->container['formatter']->get($contentType);
         $string = $formatter->format($body->getContent());
         $body->rewind();
         $body->write($string);
+        $response = $response->withHeader('Content-type', $contentType . '; ' . $this->settings['charset']);
 
         return $response;
     }
@@ -49,6 +58,13 @@ class ContentType extends AbstractComponent
     protected function parseContentTypeLine($contentTypeLine)
     {
         list($contentTypes) = explode(';', $contentTypeLine);
+
+        return explode(',', $contentTypes);
+    }
+
+    protected function parseAcceptLine($acceptLine)
+    {
+        list($contentTypes) = explode(';', $acceptLine);
 
         return explode(',', $contentTypes);
     }

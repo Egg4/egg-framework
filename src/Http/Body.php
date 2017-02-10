@@ -6,7 +6,7 @@ class Body extends \Slim\Http\Body
 {
     protected $content;
 
-    public function __construct($stream, $content) {
+    public function __construct($stream, $content = null) {
         parent::__construct($stream);
         $this->setContent($content);
     }

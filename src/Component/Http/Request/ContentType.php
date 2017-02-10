@@ -16,9 +16,7 @@ class ContentType extends AbstractComponent
             \Egg\Component\Http\Exception::class,
         ];
 
-        $this->settings = array_merge([
-            'contentTypes'  => ['application/json', 'application/xml'],
-        ], $settings);
+        $this->settings = $settings;
     }
 
     public function run(Request $request, Response $response, Component $next)

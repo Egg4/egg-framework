@@ -13,7 +13,7 @@ class Json extends AbstractFormatter
 
     public function format(array $array)
     {
-        $json = json_encode($array);
+        $json = json_encode($array, JSON_UNESCAPED_UNICODE);
         if (!$json) {
             throw new \Exception('Json error: encoding error');
         }

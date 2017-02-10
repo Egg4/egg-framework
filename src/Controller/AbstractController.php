@@ -20,6 +20,14 @@ abstract class AbstractController implements ControllerInterface
 
     public function execute($action, array $arguments = [])
     {
+        $version = $this->container['request']->getAttribute('version');
+        if ($version) {
+            $method = $version . '_' . $action;
+            if (method_exists($this, $method)) {
+                return call_user_func_array([$this, $method], $arguments);
+            }
+        }
+
         return call_user_func_array([$this, $action], $arguments);
     }
 }

@@ -15,9 +15,7 @@ class AcceptLanguage extends AbstractComponent
             \Egg\Component\Http\Exception::class,
         ];
 
-        $this->settings = array_merge([
-            'languages'  => ['en'],
-        ], $settings);
+        $this->settings = $settings;
     }
 
     public function run(Request $request, Response $response, Component $next)
