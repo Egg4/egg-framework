@@ -45,6 +45,7 @@ class Search extends AbstractComponent
             $rangeParams = $request->getAttribute('range');
 
             $this->container['request'] = $request;
+            $this->container['response'] = $response;
             $this->container['validator'][$resource]->validate(static::ACTION, [$filterParams, $sortParams, $rangeParams]);
             $result = $this->container['controller'][$resource]->execute(static::ACTION, [$filterParams, $sortParams, $rangeParams]);
             $content = $this->container['serializer'][$resource]->serialize($result);

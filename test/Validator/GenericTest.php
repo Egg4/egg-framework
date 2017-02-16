@@ -14,9 +14,11 @@ class GenericTest extends \Egg\Test
 
         $request = \Egg\FactoryTest::createRequest();
         $request = $request->withAttribute('resource', 'users');
+        $response = \Egg\FactoryTest::createResponse();
 
         $container = new Container([
             'request'   => $request,
+            'response'  => $response,
             'repository' => new Container([
                 'users'     => new ClosureRepository(function($action, $arguments) {
 
@@ -46,9 +48,11 @@ class GenericTest extends \Egg\Test
 
         $request = \Egg\FactoryTest::createRequest();
         $request = $request->withAttribute('resource', 'users');
+        $response = \Egg\FactoryTest::createResponse();
 
         $container = new Container([
             'request'   => $request,
+            'response'  => $response,
             'repository' => new Container([
                 'users'     => new ClosureRepository(function($action, $arguments) use ($id) {
                     $this->assertEquals('selectOne', $action);

@@ -4,12 +4,19 @@ namespace Egg\Http;
 
 class Exception extends \Exception
 {
+    protected $response;
     protected $errors = [];
 
-    public function __construct($status, Error $error = null)
+    public function __construct(Response $response, $status = 500, Error $error = null)
     {
+        $this->response = $response;
         parent::__construct('', $status);
         if ($error) $this->addError($error);
+    }
+
+    public function getResponse()
+    {
+        return $this->response;
     }
 
     public function getStatus()

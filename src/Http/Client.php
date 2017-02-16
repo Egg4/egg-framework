@@ -78,4 +78,9 @@ class Client
     {
         return $this->send('delete', $uri, $headers);
     }
+
+    public function options($uri, $headers = [])
+    {
+        return $this->send('options', $uri, $headers);
+    }
 }

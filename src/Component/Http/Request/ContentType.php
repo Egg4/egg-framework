@@ -24,7 +24,7 @@ class ContentType extends AbstractComponent
         if ($request->hasHeader('Content-Type')) {
             $contentType = $request->getMediaType();
             if ($contentType AND !in_array($contentType, $this->settings['contentTypes'])) {
-                throw new \Egg\Http\Exception(415, new \Egg\Http\Error(array(
+                throw new \Egg\Http\Exception($response, 415, new \Egg\Http\Error(array(
                     'name'          => 'unsupported_content_type',
                     'description'   => sprintf('"Content-Type" header must be in: %s', implode(', ', $this->settings['contentTypes'])),
                 )));
@@ -38,7 +38,7 @@ class ContentType extends AbstractComponent
                 $body->setContent($content);
             }
             catch (\Exception $exception) {
-                throw new \Egg\Http\Exception(400, new \Egg\Http\Error(array(
+                throw new \Egg\Http\Exception($response, 400, new \Egg\Http\Error(array(
                     'name'          => 'unparsable_content_type',
                     'description'   => $exception->getMessage(),
                 )));

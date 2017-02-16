@@ -41,6 +41,7 @@ class Replace extends AbstractComponent
             $params = $request->getBody()->getContent();
 
             $this->container['request'] = $request;
+            $this->container['response'] = $response;
             $this->container['validator'][$resource]->validate(static::ACTION, [$id, $params]);
             $result = $this->container['controller'][$resource]->execute(static::ACTION, [$id, $params]);
 

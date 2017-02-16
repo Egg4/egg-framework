@@ -37,6 +37,7 @@ class Create extends AbstractComponent
             $params = $request->getBody()->getContent();
 
             $this->container['request'] = $request;
+            $this->container['response'] = $response;
             $this->container['validator'][$resource]->validate(static::ACTION, [$params]);
             $result = $this->container['controller'][$resource]->execute(static::ACTION, [$params]);
             $content = $this->container['serializer'][$resource]->serialize($result);

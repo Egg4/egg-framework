@@ -40,6 +40,7 @@ class Read extends AbstractComponent
             $id = $route->getArgument('id');
 
             $this->container['request'] = $request;
+            $this->container['response'] = $response;
             $this->container['validator'][$resource]->validate(static::ACTION, [$id]);
             $result = $this->container['controller'][$resource]->execute(static::ACTION, [$id]);
             $content = $this->container['serializer'][$resource]->serialize($result);

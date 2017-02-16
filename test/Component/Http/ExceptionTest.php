@@ -28,8 +28,8 @@ class ExceptionTest extends \Egg\Test
         $component = new ExceptionComponent([
             'serializer' => new \Egg\Serializer\Error(),
         ]);
-        $response = $component($request, $response, function() {
-            throw new \Egg\Http\Exception(404, new \Egg\Http\Error(array(
+        $response = $component($request, $response, function() use ($response) {
+            throw new \Egg\Http\Exception($response, 404, new \Egg\Http\Error(array(
                 'name' => 'not_found',
             )));
         });

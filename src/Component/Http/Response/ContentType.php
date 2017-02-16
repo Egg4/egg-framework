@@ -46,10 +46,13 @@ class ContentType extends AbstractComponent
             $contentType = array_shift($keys);
         }
 
-        $formatter = $this->container['formatter']->get($contentType);
-        $string = $formatter->format($body->getContent());
+        $content = $body->getContent();
+        if (is_array($content)) {
+            $formatter = $this->container['formatter']->get($contentType);
+            $content = $formatter->format($content);
+        }
         $body->rewind();
-        $body->write($string);
+        $body->write($content);
         $response = $response->withHeader('Content-type', $contentType . '; ' . $this->settings['charset']);
 
         return $response;

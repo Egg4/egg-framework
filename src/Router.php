@@ -25,17 +25,11 @@ class Router extends \Slim\Router
         $routeInfo = parent::dispatch($request);
 
         if ($routeInfo[0] == \FastRoute\Dispatcher::NOT_FOUND) {
-            throw new \Egg\Http\Exception(404, new \Egg\Http\Error(array(
-                'name'          => 'not_found',
-                'description'   => sprintf('Route "%s" not found', (string) $request->getUri()),
-            )));
+            throw new \Exception('not_found');
         }
 
         if ($routeInfo[0] == \FastRoute\Dispatcher::METHOD_NOT_ALLOWED) {
-            throw new \Egg\Http\Exception(405, new \Egg\Http\Error(array(
-                'name'          => 'method_not_allowed',
-                'description'   => sprintf('Method "%s" not allowed', $request->getMethod()),
-            )));
+            throw new \Exception('not_allowed');
         }
 
         $routeArguments = [];

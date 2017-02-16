@@ -25,7 +25,7 @@ class Cors extends AbstractComponent
         $this->settingsStrategy = new SettingsStrategy();
         $this->settings = array_merge([
             'origin' => '*',
-            'methods' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+            'methods' => [],
             'headers.allow' => [],
             'headers.expose' => [],
             'credentials' => false,
@@ -42,19 +42,19 @@ class Cors extends AbstractComponent
         $cors = $analyzer->analyze($request);
         switch ($cors->getRequestType()) {
             case AnalysisResultInterface::ERR_ORIGIN_NOT_ALLOWED:
-                throw new \Egg\Http\Exception(401, new \Egg\Http\Error(array(
+                throw new \Egg\Http\Exception($response, 401, new \Egg\Http\Error(array(
                     'name'          => 'not_allowed_cors_origin',
                     'description'   => 'CORS request origin is not allowed.',
                 )));
 
             case AnalysisResultInterface::ERR_METHOD_NOT_SUPPORTED:
-                throw new \Egg\Http\Exception(401, new \Egg\Http\Error(array(
+                throw new \Egg\Http\Exception($response, 401, new \Egg\Http\Error(array(
                     'name'          => 'unsupported_cors_method',
                     'description'   => 'CORS request method is not supported.',
                 )));
 
             case AnalysisResultInterface::ERR_HEADERS_NOT_SUPPORTED:
-                throw new \Egg\Http\Exception(401, new \Egg\Http\Error(array(
+                throw new \Egg\Http\Exception($response, 401, new \Egg\Http\Error(array(
                     'name'          => 'unsupported_cors_headers',
                     'description'   => 'CORS request headers are not supported.',
                 )));
@@ -74,7 +74,6 @@ class Cors extends AbstractComponent
 
             default:
                 /* Actual CORS request. */
-                $response = $next($request, $response);
                 $cors_headers = $cors->getResponseHeaders();
                 foreach ($cors_headers as $header => $value) {
                     if (false === is_array($value)) {
@@ -82,7 +81,7 @@ class Cors extends AbstractComponent
                     }
                     $response = $response->withHeader($header, $value);
                 }
-                return $response;
+                return $next($request, $response);
         }
     }
 

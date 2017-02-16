@@ -30,7 +30,23 @@ class Sort extends AbstractComponent
             $sort = empty($sort) ? [] : explode(',', $sort);
             $desc = $request->getQueryParam($this->settings['descKey'], '');
             $desc = empty($desc) ? [] : explode(',', $desc);
-            $this->checkParams($sort, $desc);
+
+            // check params
+            $errorParams = [];
+            foreach ($desc as $param) {
+                if (!in_array($param, $sort)) {
+                    $errorParams[] = $param;
+                }
+            }
+            if (!empty($errorParams)) {
+                throw new \Egg\Http\Exception($response, 400, new \Egg\Http\Error(array(
+                    'name'          => 'invalid_sort',
+                    'description'   => sprintf('Sort key "%s" must contain "%s" keys',
+                        $this->settings['sortKey'],
+                        implode(',', $errorParams)
+                    ),
+                )));
+            }
 
             $sortParams = [];
             foreach ($sort as $param) {
@@ -42,25 +58,5 @@ class Sort extends AbstractComponent
         $response = $next($request, $response);
 
         return $response;
-    }
-
-    protected function checkParams(array $sort, array $desc)
-    {
-        $errorParams = [];
-        foreach ($desc as $param) {
-            if (!in_array($param, $sort)) {
-                $errorParams[] = $param;
-            }
-        }
-
-        if (!empty($errorParams)) {
-            throw new \Egg\Http\Exception(400, new \Egg\Http\Error(array(
-                'name'          => 'invalid_sort',
-                'description'   => sprintf('Sort key "%s" must contain "%s" keys',
-                    $this->settings['sortKey'],
-                    implode(',', $errorParams)
-                ),
-            )));
-        }
     }
 }

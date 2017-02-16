@@ -22,7 +22,7 @@ abstract class AbstractValidator implements ValidatorInterface
     public function validate($action, array $arguments = [])
     {
         if (method_exists($this, $action)) {
-            $this->exception = new \Egg\Http\Exception(400);
+            $this->exception = new \Egg\Http\Exception($this->container['response'], 400);
             call_user_func_array([$this, $action], $arguments);
             if ($this->exception->hasErrors()) throw $this->exception;
         }

@@ -28,7 +28,7 @@ class Accept extends AbstractComponent
         }
 
         if (!$contentType) {
-            throw new \Egg\Http\Exception(406, new \Egg\Http\Error(array(
+            throw new \Egg\Http\Exception($response, 406, new \Egg\Http\Error(array(
                 'name'          => 'not_acceptable',
                 'description'   => sprintf('"Accept" header must be in: %s', implode(', ', $this->settings['contentTypes'])),
             )));

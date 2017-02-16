@@ -42,6 +42,7 @@ class Custom extends AbstractComponent
             $params = $request->getBody()->getContent();
 
             $this->container['request'] = $request;
+            $this->container['response'] = $response;
             $this->container['validator'][$resource]->validate($action, [$params]);
             $result = $this->container['controller'][$resource]->execute($action, [$params]);
 

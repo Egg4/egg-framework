@@ -29,7 +29,7 @@ class Range extends AbstractComponent
             $range = $request->getQueryParam($this->settings['rangeKey'], '');
             preg_match($this->settings['pattern'], $range, $matches);
             if (count($matches) != 3) {
-                throw new \Egg\Http\Exception(400, new \Egg\Http\Error(array(
+                throw new \Egg\Http\Exception($response, 400, new \Egg\Http\Error(array(
                     'name'          => 'unparsable_range',
                     'description'   => sprintf('Range "%s" is not parsable', $range),
                 )));
@@ -37,7 +37,7 @@ class Range extends AbstractComponent
             $start = $matches[1];
             $end = $matches[2];
             if (!is_numeric($start) OR !is_numeric($end) OR $start > $end) {
-                throw new \Egg\Http\Exception(400, new \Egg\Http\Error(array(
+                throw new \Egg\Http\Exception($response, 400, new \Egg\Http\Error(array(
                     'name'          => 'invalid_range',
                     'description'   => sprintf('Range "%s" is not valid', $range),
                 )));
