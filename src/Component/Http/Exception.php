@@ -49,11 +49,11 @@ class Exception extends AbstractComponent
             else {
                 $message = 'Oops! Something went wrong...';
             }
-            $array = $this->settings['serializer']->serialize(new \Egg\Http\Error(array(
+            $array = $this->settings['serializer']->serialize([new \Egg\Http\Error(array(
                 'name'        => 'server_error',
                 'description' => $message,
                 'uri'         => '',
-            )));
+            ))]);
             $response->getBody()->setContent($array);
         }
 
