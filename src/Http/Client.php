@@ -9,9 +9,10 @@ class Client
     protected $container;
     protected $response;
 
-    public function __construct(Container $container)
+    public function __construct(Container $container, $headers)
     {
         $this->container = $container;
+        $this->headers = $headers;
     }
 
     protected function send($method, $uri, $headers = [], $body = null)
@@ -23,21 +24,48 @@ class Client
         $this->response = $app->run(true);
         $body = $this->response->getBody();
         $body->rewind();
+        $content = $body->getContents();
 
-        return $body->getContents();
+        // Parse body
+        if ($this->response->hasHeader('Content-Type')) {
+            $contentTypeLine = $this->response->getHeaderLine('Content-Type');
+            if ($contentTypeLine) {
+                $contentTypeParts = preg_split('/\s*[;,]\s*/', $contentTypeLine);
+                $contentType = strtolower($contentTypeParts[0]);
+                if ($this->container['parser']->has($contentType)) {
+                    $parser = $this->container['parser']->get($contentType);
+                    return $parser->parse($content);
+                }
+            }
+        }
+
+        return $content;
     }
 
     protected function buildRequest($method, $uri, $headers, $body)
     {
         $method = strtoupper($method);
         $uri = \Slim\Http\Uri::createFromString($uri);
-        $headers = new \Slim\Http\Headers($headers);
+        $headers = new \Slim\Http\Headers(array_merge($this->headers, $headers));
         $cookies = \Slim\Http\Cookies::parseHeader($headers->get('Cookie', []));
         $serverParams = $this->container['environment']->all();
-        $body = new Body(fopen('php://temp', 'r+'), $body);
-        if (is_string($body->getContent())) {
-            $body->write($body->getContent());
+
+        // Format body
+        if ($headers->has('Content-Type')) {
+            $contentTypeLine = implode(',', $headers->get('Content-Type', []));
+            if ($contentTypeLine) {
+                $contentTypeParts = preg_split('/\s*[;,]\s*/', $contentTypeLine);
+                $contentType = strtolower($contentTypeParts[0]);
+                if ($this->container['formatter']->has($contentType)) {
+                    $formatter = $this->container['formatter']->get($contentType);
+                    $content = $body != null ? $body : [];
+                    $body = $formatter->format($content);
+                }
+            }
         }
+        $body = new Body(fopen('php://temp', 'r+'), $body);
+        $body->write($body->getContent());
+
         return new Request($method, $uri, $headers, $cookies, $serverParams, $body);
     }
 
