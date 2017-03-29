@@ -4,6 +4,7 @@ namespace Egg\Component\Resource\Action;
 
 use \Egg\Container;
 use \Egg\Component\Resource\Action\Delete as DeleteComponent;
+use \Egg\Authorizer\Closure as ClosureAuthorizer;
 use \Egg\Validator\Closure as ClosureValidator;
 use \Egg\Controller\Closure as ClosureController;
 use \Egg\Serializer\Closure as ClosureSerializer;
@@ -15,15 +16,20 @@ class DeleteTest extends \Egg\Test
         $result = new \StdClass();
         $result->id = 27;
 
-        $controller = new ClosureController(function($action, $arguments) use($result) {
+        $authorizer = new ClosureAuthorizer(function($action, $arguments) use($result) {
             $this->assertEquals($action, 'delete');
             $this->assertEquals($arguments[0], $result->id);
-            return $result;
         });
 
         $validator = new ClosureValidator(function($action, $arguments) use($result) {
             $this->assertEquals($action, 'delete');
             $this->assertEquals($arguments[0], $result->id);
+        });
+
+        $controller = new ClosureController(function($action, $arguments) use($result) {
+            $this->assertEquals($action, 'delete');
+            $this->assertEquals($arguments[0], $result->id);
+            return $result;
         });
 
         $serializer = new ClosureSerializer(function($input) use($result) {
@@ -33,8 +39,9 @@ class DeleteTest extends \Egg\Test
 
         $container = new Container([
             'router'        => \Egg\FactoryTest::createRouter(),
-            'controller'    => new Container(['users' => $controller]),
+            'authorizer'    => new Container(['users' => $authorizer]),
             'validator'     => new Container(['users' => $validator]),
+            'controller'    => new Container(['users' => $controller]),
             'serializer'    => new Container(['users' => $serializer]),
         ]);
         $request = \Egg\FactoryTest::createRequest([

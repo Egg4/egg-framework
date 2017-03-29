@@ -42,6 +42,7 @@ class Update extends AbstractComponent
 
             $this->container['request'] = $request;
             $this->container['response'] = $response;
+            $this->container['authorizer'][$resource]->authorize(static::ACTION, [$id, $params]);
             $this->container['validator'][$resource]->validate(static::ACTION, [$id, $params]);
             $result = $this->container['controller'][$resource]->execute(static::ACTION, [$id, $params]);
 

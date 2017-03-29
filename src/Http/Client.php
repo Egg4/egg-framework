@@ -9,13 +9,13 @@ class Client
     protected $container;
     protected $response;
 
-    public function __construct(Container $container, $headers)
+    public function __construct(Container $container, array $headers = [])
     {
         $this->container = $container;
         $this->headers = $headers;
     }
 
-    protected function send($method, $uri, $headers = [], $body = null)
+    protected function send($method, $uri, array $headers = [], $body = null)
     {
         $this->container['request'] = $this->buildRequest($method, $uri, $headers, $body);
         $this->container['response'] = $this->buildResponse();
@@ -27,7 +27,7 @@ class Client
         $content = $body->getContents();
 
         // Parse body
-        if ($this->response->hasHeader('Content-Type')) {
+        if ($this->container->has('parser') AND $this->response->hasHeader('Content-Type')) {
             $contentTypeLine = $this->response->getHeaderLine('Content-Type');
             if ($contentTypeLine) {
                 $contentTypeParts = preg_split('/\s*[;,]\s*/', $contentTypeLine);
@@ -42,7 +42,7 @@ class Client
         return $content;
     }
 
-    protected function buildRequest($method, $uri, $headers, $body)
+    protected function buildRequest($method, $uri, array $headers, $body)
     {
         $method = strtoupper($method);
         $uri = \Slim\Http\Uri::createFromString($uri);
@@ -51,7 +51,7 @@ class Client
         $serverParams = $this->container['environment']->all();
 
         // Format body
-        if ($headers->has('Content-Type')) {
+        if ($this->container->has('formatter') AND $headers->has('Content-Type')) {
             $contentTypeLine = implode(',', $headers->get('Content-Type', []));
             if ($contentTypeLine) {
                 $contentTypeParts = preg_split('/\s*[;,]\s*/', $contentTypeLine);
@@ -82,32 +82,32 @@ class Client
         return $this->response;
     }
 
-    public function get($uri, $headers = [])
+    public function get($uri, array $headers = [])
     {
         return $this->send('get', $uri, $headers);
     }
 
-    public function post($uri, $headers = [], $body = null)
+    public function post($uri, array $headers = [], $body = null)
     {
         return $this->send('post', $uri, $headers, $body);
     }
 
-    public function patch($uri, $headers = [], $body = null)
+    public function patch($uri, array $headers = [], $body = null)
     {
         return $this->send('patch', $uri, $headers, $body);
     }
 
-    public function put($uri, $headers = [], $body = null)
+    public function put($uri, array $headers = [], $body = null)
     {
         return $this->send('put', $uri, $headers, $body);
     }
 
-    public function delete($uri, $headers = [])
+    public function delete($uri, array $headers = [])
     {
         return $this->send('delete', $uri, $headers);
     }
 
-    public function options($uri, $headers = [])
+    public function options($uri, array $headers = [])
     {
         return $this->send('options', $uri, $headers);
     }

@@ -55,6 +55,6 @@ class ExceptionTest extends \Egg\Test
         $content = $response->getBody()->getContent();
 
         $this->assertEquals($responseStatus, 500);
-        $this->assertEquals($content['name'], 'server_error');
+        $this->assertEquals($content[0]['name'], 'server_error');
     }
 }

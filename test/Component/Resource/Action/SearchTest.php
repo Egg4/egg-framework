@@ -4,6 +4,7 @@ namespace Egg\Component\Resource\Action;
 
 use \Egg\Container;
 use \Egg\Component\Resource\Action\Search as SearchComponent;
+use \Egg\Authorizer\Closure as ClosureAuthorizer;
 use \Egg\Validator\Closure as ClosureValidator;
 use \Egg\Controller\Closure as ClosureController;
 use \Egg\Serializer\Closure as ClosureSerializer;
@@ -26,7 +27,7 @@ class SearchTest extends \Egg\Test
         ];
         $result = 27;
 
-        $controller = new ClosureController(function($action, $arguments) use($filter, $sort, $range, $result) {
+        $authorizer = new ClosureAuthorizer(function($action, $arguments) use($filter, $sort, $range, $result) {
             $this->assertEquals($action, 'search');
             $this->assertEquals($arguments[0], $filter);
             $this->assertEquals($arguments[1], $sort);
@@ -41,6 +42,14 @@ class SearchTest extends \Egg\Test
             $this->assertEquals($arguments[2], $range);
         });
 
+        $controller = new ClosureController(function($action, $arguments) use($filter, $sort, $range, $result) {
+            $this->assertEquals($action, 'search');
+            $this->assertEquals($arguments[0], $filter);
+            $this->assertEquals($arguments[1], $sort);
+            $this->assertEquals($arguments[2], $range);
+            return $result;
+        });
+
         $serializer = new ClosureSerializer(function($input) use($result) {
             $this->assertEquals($input, $result);
             return 'result';
@@ -48,8 +57,9 @@ class SearchTest extends \Egg\Test
 
         $container = new Container([
             'router'        => \Egg\FactoryTest::createRouter(),
-            'controller'    => new Container(['users' => $controller]),
+            'authorizer'    => new Container(['users' => $authorizer]),
             'validator'     => new Container(['users' => $validator]),
+            'controller'    => new Container(['users' => $controller]),
             'serializer'    => new Container(['users' => $serializer]),
         ]);
         $request = \Egg\FactoryTest::createRequest([

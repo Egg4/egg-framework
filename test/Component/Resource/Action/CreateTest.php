@@ -4,6 +4,7 @@ namespace Egg\Component\Resource\Action;
 
 use \Egg\Container;
 use \Egg\Component\Resource\Action\Create as CreateComponent;
+use \Egg\Authorizer\Closure as ClosureAuthorizer;
 use \Egg\Validator\Closure as ClosureValidator;
 use \Egg\Controller\Closure as ClosureController;
 use \Egg\Serializer\Closure as ClosureSerializer;
@@ -19,15 +20,20 @@ class CreateTest extends \Egg\Test
         $result = new \StdClass();
         $result->id = 27;
 
-        $controller = new ClosureController(function($action, $arguments) use($body, $result) {
+        $authorizer = new ClosureAuthorizer(function($action, $arguments) use($body) {
             $this->assertEquals($action, 'create');
             $this->assertEquals($arguments[0], $body);
-            return $result;
         });
 
         $validator = new ClosureValidator(function($action, $arguments) use($body) {
             $this->assertEquals($action, 'create');
             $this->assertEquals($arguments[0], $body);
+        });
+
+        $controller = new ClosureController(function($action, $arguments) use($body, $result) {
+            $this->assertEquals($action, 'create');
+            $this->assertEquals($arguments[0], $body);
+            return $result;
         });
 
         $serializer = new ClosureSerializer(function($input) use($result) {
@@ -37,8 +43,9 @@ class CreateTest extends \Egg\Test
 
         $container = new Container([
             'router'        => \Egg\FactoryTest::createRouter(),
-            'controller'    => new Container(['users' => $controller]),
+            'authorizer'    => new Container(['users' => $authorizer]),
             'validator'     => new Container(['users' => $validator]),
+            'controller'    => new Container(['users' => $controller]),
             'serializer'    => new Container(['users' => $serializer]),
         ]);
         $request = \Egg\FactoryTest::createRequest([
