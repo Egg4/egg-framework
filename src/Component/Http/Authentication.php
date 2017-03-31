@@ -79,8 +79,9 @@ class Authentication extends AbstractComponent
     protected function isPublic($route)
     {
         foreach ($this->settings['route.public'] as $routeData) {
-            if ($route->getName() == $routeData['name'] AND $route->getArgument('resource') == $routeData['resource']) {
-                if ($routeData['name'] != 'custom' OR $route->getArgument('action') == $routeData['action']) {
+            list($resource, $name, $action) = explode(':', $routeData);
+            if ($route->getArgument('resource') == $resource AND $route->getName() == $name) {
+                if ($name != 'custom' OR $route->getArgument('action') == $action) {
                     return true;
                 }
             }
