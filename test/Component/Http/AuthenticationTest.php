@@ -60,7 +60,7 @@ class AuthenticationTest extends \Egg\Test
         $component = new AuthenticationComponent([
             'header.key'        => 'Authorization',
             'header.pattern'    => 'key: {token}',
-            'route.public'      => ['user:custom:login'],
+            'routes'            => ['user.login' => 'public'],
         ]);
         $component->setContainer($container);
         $component->init();

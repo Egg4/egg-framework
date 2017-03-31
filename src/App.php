@@ -29,9 +29,11 @@ class App extends \Slim\App
             $container['components'] = [];
         }
 
-        $container['callableResolver'] = function ($container) {
-            return new CallableResolver($container);
-        };
+        if (!isset($container['callableResolver'])) {
+            $container['callableResolver'] = function ($container) {
+                return new CallableResolver($container);
+            };
+        }
 
         parent::__construct($container);
     }

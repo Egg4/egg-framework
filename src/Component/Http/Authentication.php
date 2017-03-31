@@ -18,7 +18,7 @@ class Authentication extends AbstractComponent
         $this->settings = array_merge([
             'header.key'        => 'Authorization',
             'header.pattern'    => '{key}',
-            'route.public'      => [],
+            'routes'            => [],
         ], $settings);
     }
 
@@ -35,7 +35,7 @@ class Authentication extends AbstractComponent
                 $authentication = $this->container['authenticator']->authenticate($key);
             }
             if (!$authentication) {
-                throw new \Egg\Http\Exception($this->container['response'], 403, new \Egg\Http\Error(array(
+                throw new \Egg\Http\Exception($response, 403, new \Egg\Http\Error(array(
                     'name'          => 'authentication_required',
                     'description'   => 'Authentication is required',
                 )));
@@ -78,13 +78,18 @@ class Authentication extends AbstractComponent
 
     protected function isPublic($route)
     {
-        foreach ($this->settings['route.public'] as $routeData) {
-            list($resource, $name, $action) = explode(':', $routeData);
-            if ($route->getArgument('resource') == $resource AND $route->getName() == $name) {
-                if ($name != 'custom' OR $route->getArgument('action') == $action) {
-                    return true;
-                }
+        foreach ($this->settings['routes'] as $key => $value) {
+            if ($value != 'public') {
+                continue;
             }
+            list($resource, $action) = explode('.', $key);
+            if (!in_array($resource, ['*', $route->getArgument('resource')])) {
+                continue;
+            }
+            if (!in_array($action, ['*', $route->getName(), $route->getArgument('action')])) {
+                continue;
+            }
+            return true;
         }
 
         return false;

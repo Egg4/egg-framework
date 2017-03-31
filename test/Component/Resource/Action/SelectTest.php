@@ -32,7 +32,7 @@ class SelectTest extends \Egg\Test
             $this->assertEquals($arguments[0], $filter);
             $this->assertEquals($arguments[1], $sort);
             $this->assertEquals($arguments[2], $range);
-            return $result;
+            return $filter;
         });
 
         $validator = new ClosureValidator(function($action, $arguments) use($filter, $sort, $range) {

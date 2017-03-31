@@ -33,7 +33,7 @@ class CacheTest extends \Egg\Test
         $container = new Container([
             'cache'     => new ClosureCache(function($action, $arguments) {
                 $this->assertEquals('delete', $action);
-                $this->assertEquals('key', $arguments[0]);
+                $this->assertEquals('authentication.key', $arguments[0]);
             }),
         ]);
 
@@ -53,7 +53,7 @@ class CacheTest extends \Egg\Test
         $container = new Container([
             'cache'     => new ClosureCache(function($action, $arguments) use ($user) {
                 $this->assertEquals('get', $action);
-                $this->assertEquals('key', $arguments[0]);
+                $this->assertEquals('authentication.key', $arguments[0]);
                 return $user;
             }),
         ]);

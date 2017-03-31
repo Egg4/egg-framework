@@ -43,7 +43,7 @@ class Select extends AbstractComponent
 
             $this->container['request'] = $request;
             $this->container['response'] = $response;
-            $this->container['authorizer'][$resource]->authorize(static::ACTION, [$filterParams, $sortParams, $rangeParams]);
+            $filterParams = $this->container['authorizer'][$resource]->authorize(static::ACTION, [$filterParams, $sortParams, $rangeParams]);
             $this->container['validator'][$resource]->validate(static::ACTION, [$filterParams, $sortParams, $rangeParams]);
             $result = $this->container['controller'][$resource]->execute(static::ACTION, [$filterParams, $sortParams, $rangeParams]);
             $content = $this->container['serializer'][$resource]->serialize($result);
