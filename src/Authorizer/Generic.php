@@ -103,33 +103,43 @@ class Generic extends AbstractAuthorizer
     public function read($id)
     {
         $filterParams = $this->analyse('read');
-        $this->checkEntityExists(array_merge(['id' => $id], $filterParams));
+        if (!empty($filterParams)) {
+            $this->checkEntityExists(array_merge(['id' => $id], $filterParams));
+        }
     }
 
     public function create(array $params)
     {
         $filterParams = $this->analyse('create');
-        $this->checkParams($params, $filterParams);
+        if (!empty($filterParams)) {
+            $this->checkParams($params, $filterParams);
+        }
     }
 
     public function replace($id, array $params)
     {
         $filterParams = $this->analyse('replace');
-        $this->checkParams($params, $filterParams);
-        $this->checkEntityExists(array_merge(['id' => $id], $filterParams));
+        if (!empty($filterParams)) {
+            $this->checkParams($params, $filterParams);
+            $this->checkEntityExists(array_merge(['id' => $id], $filterParams));
+        }
     }
 
     public function update($id, array $params)
     {
         $filterParams = $this->analyse('update');
-        $this->checkParams($params, $filterParams);
-        $this->checkEntityExists(array_merge(['id' => $id], $filterParams));
+        if (!empty($filterParams)) {
+            $this->checkParams($params, $filterParams);
+            $this->checkEntityExists(array_merge(['id' => $id], $filterParams));
+        }
     }
 
     public function delete($id)
     {
         $filterParams = $this->analyse('delete');
-        $this->checkEntityExists(array_merge(['id' => $id], $filterParams));
+        if (!empty($filterParams)) {
+            $this->checkEntityExists(array_merge(['id' => $id], $filterParams));
+        }
     }
 
     protected function checkParams($params, $filterParams)
