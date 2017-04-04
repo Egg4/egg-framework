@@ -16,6 +16,8 @@ class Generic extends AbstractAuthorizer
             'schema.reference.resource' => '',
             'schema.reference.attribute' => '',
         ], $settings);
+        $this->container = $settings['container'];
+        $this->resource = $settings['resource'];
     }
 
     protected function canAccess($authentication, $right)
@@ -163,7 +165,7 @@ class Generic extends AbstractAuthorizer
 
     protected function checkEntityExists($params)
     {
-        $repository = $this->container['repository'][$this->settings['schema.self.resource']];
+        $repository = $this->container['repository'][$this->resource];
         $entity = $repository->selectOne($params);
         if (!$entity) {
             throw new \Egg\Http\Exception($this->container['response'], 403, new \Egg\Http\Error(array(
