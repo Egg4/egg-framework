@@ -4,7 +4,6 @@ namespace Egg\Cache;
 
 class Memory extends AbstractCache
 {
-    protected $settings;
     protected $cache;
 
     public function __construct(array $settings = [])
@@ -15,11 +14,6 @@ class Memory extends AbstractCache
         ], $settings);
 
         $this->cache = new \Egg\Yolk\Shm\Cache();
-    }
-
-    protected function buildKey($key)
-    {
-        return empty($this->settings['namespace']) ? $key : $this->settings['namespace'] . '.' . $key;
     }
 
     public function get($key)

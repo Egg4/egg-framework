@@ -6,14 +6,12 @@ class Generic extends AbstractRepository
 {
     public function __construct(array $settings = [])
     {
-        $settings = array_merge([
+        $this->settings = array_merge([
             'database'          => null,
             'table'             => null,
-            'entitySetClass'    => \Egg\Orm\EntitySet\Generic::class,
-            'entityClass'       => \Egg\Orm\Entity\Generic::class,
+            'entitySet.class'    => \Egg\Orm\EntitySet\Generic::class,
+            'entity.class'       => \Egg\Orm\Entity\Generic::class,
         ], $settings);
-
-        parent::__construct($settings);
     }
 
     public function getDatabase()
@@ -54,7 +52,7 @@ class Generic extends AbstractRepository
         $params = $this->settings['database']->prepareParams($where);
         $statement = $this->settings['database']->execute($sql, $params);
 
-        return $statement->fetchEntitySet($this->settings['entitySetClass'], $this->settings['entityClass']);
+        return $statement->fetchEntitySet($this->settings['entitySet.class'], $this->settings['entity.class']);
     }
 
     public function selectOne(array $where = [])
@@ -63,6 +61,6 @@ class Generic extends AbstractRepository
         $params = $this->settings['database']->prepareParams($where);
         $statement = $this->settings['database']->execute($sql, $params);
 
-        return $statement->fetchEntity($this->settings['entityClass']);
+        return $statement->fetchEntity($this->settings['entity.class']);
     }
 }

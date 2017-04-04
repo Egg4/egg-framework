@@ -14,7 +14,7 @@ class AcceptTest extends \Egg\Test
         $response = \Egg\FactoryTest::createResponse();
 
         $component = new AcceptComponent([
-            'contentTypes' => ['application/json']
+            'media.types' => ['application/json']
         ]);
         $response = $component($request, $response);
 
@@ -29,7 +29,7 @@ class AcceptTest extends \Egg\Test
         $response = \Egg\FactoryTest::createResponse();
 
         $component = new AcceptComponent([
-            'contentTypes' => ['application/json']
+            'media.types' => ['application/json']
         ]);
 
         $this->expectException(\Egg\Http\Exception::class);

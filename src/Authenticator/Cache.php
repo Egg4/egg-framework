@@ -4,36 +4,40 @@ namespace Egg\Authenticator;
 
 class Cache extends AbstractAuthenticator
 {
-    protected $cache;
+    protected $settings = [];
 
-    public function init()
+    public function __construct(array $settings = [])
     {
-        $this->cache = $this->container['cache'];
+        $this->settings = array_merge([
+            'cache'         => null,
+            'namespace'     => 'authentication',
+        ], $settings);
     }
 
     protected function buildKey($key)
     {
-        return 'authentication.' . $key;
+        return empty($this->settings['namespace']) ? $key : $this->settings['namespace'] . '.' . $key;
     }
 
-    public function register($data)
+    public function register(array $data)
     {
         $id = md5(mt_rand());
+        $data['key'] = $id;
         $key = $this->buildKey($id);
-        $this->cache->set($key, $data);
+        $this->settings['cache']->set($key, $data);
 
-        return $id;
+        return $data;
     }
 
     public function unregister($key)
     {
         $key = $this->buildKey($key);
-        $this->cache->delete($key);
+        $this->settings['cache']->delete($key);
     }
 
     public function authenticate($key)
     {
         $key = $this->buildKey($key);
-        return $this->cache->get($key);
+        return $this->settings['cache']->get($key);
     }
 }

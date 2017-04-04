@@ -6,9 +6,8 @@ class Closure extends AbstractRepository
 {
     use \Egg\Yolk\ClosureAwareTrait;
 
-    public function __construct(\Closure $closure, array $settings = [])
+    public function __construct(\Closure $closure)
     {
-        parent::__construct($settings);
         $this->closure = $closure;
     }
 

@@ -13,22 +13,22 @@ class GenericTest extends \Egg\Test
         $data = [];
 
         $request = \Egg\FactoryTest::createRequest();
-        $request = $request->withAttribute('resource', 'users');
         $response = \Egg\FactoryTest::createResponse();
 
         $container = new Container([
             'request'   => $request,
             'response'  => $response,
             'repository' => new Container([
-                'users'     => new ClosureRepository(function($action, $arguments) {
+                'user'     => new ClosureRepository(function($action, $arguments) {
 
                 }),
             ]),
         ]);
 
-        $validator = new GenericValidator();
-        $validator->setContainer($container);
-        $validator->init();
+        $validator = new GenericValidator([
+            'container' => $container,
+            'resource'  => 'user',
+        ]);
 
         $this->expectException(\Egg\Http\Exception::class);
         try {
@@ -47,14 +47,13 @@ class GenericTest extends \Egg\Test
         $id = 27;
 
         $request = \Egg\FactoryTest::createRequest();
-        $request = $request->withAttribute('resource', 'users');
         $response = \Egg\FactoryTest::createResponse();
 
         $container = new Container([
             'request'   => $request,
             'response'  => $response,
             'repository' => new Container([
-                'users'     => new ClosureRepository(function($action, $arguments) use ($id) {
+                'user'     => new ClosureRepository(function($action, $arguments) use ($id) {
                     $this->assertEquals('selectOne', $action);
                     $this->assertEquals(['id' => $id], $arguments[0]);
                     return null;
@@ -62,9 +61,10 @@ class GenericTest extends \Egg\Test
             ]),
         ]);
 
-        $validator = new GenericValidator();
-        $validator->setContainer($container);
-        $validator->init();
+        $validator = new GenericValidator([
+            'container' => $container,
+            'resource'  => 'user',
+        ]);
 
         $this->expectException(\Egg\Http\Exception::class);
         try {

@@ -17,7 +17,7 @@ class Range extends AbstractComponent
 
         $this->settings = array_merge([
             'routes'    => ['select', 'search'],
-            'rangeKey'  => 'range',
+            'key'       => 'range',
             'pattern'   => '/(\d+)-(\d+)/',
         ], $settings);
     }
@@ -26,7 +26,7 @@ class Range extends AbstractComponent
     {
         $route = $request->getAttribute('route');
         if (in_array($route->getName(), $this->settings['routes'])) {
-            $range = $request->getQueryParam($this->settings['rangeKey'], '');
+            $range = $request->getQueryParam($this->settings['key'], '');
             preg_match($this->settings['pattern'], $range, $matches);
             if (count($matches) != 3) {
                 throw new \Egg\Http\Exception($response, 400, new \Egg\Http\Error(array(

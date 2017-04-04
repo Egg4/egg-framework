@@ -11,7 +11,7 @@ class Closure extends AbstractAuthenticator
         $this->closure = $closure;
     }
 
-    public function register($data)
+    public function register(array $data)
     {
         return call_user_func_array($this->closure, ['register', [$data]]);
     }

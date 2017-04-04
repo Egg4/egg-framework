@@ -15,7 +15,9 @@ class Accept extends AbstractComponent
             \Egg\Component\Http\Exception::class,
         ];
 
-        $this->settings = $settings;
+        $this->settings = array_merge([
+            'media.types'        => [],
+        ], $settings);
     }
 
     public function run(Request $request, Response $response, Component $next)
@@ -30,7 +32,7 @@ class Accept extends AbstractComponent
         if (!$contentType) {
             throw new \Egg\Http\Exception($response, 406, new \Egg\Http\Error(array(
                 'name'          => 'not_acceptable',
-                'description'   => sprintf('"Accept" header must be in: %s', implode(', ', $this->settings['contentTypes'])),
+                'description'   => sprintf('"Accept" header must be in: %s', implode(', ', $this->settings['media.types'])),
             )));
         }
 
@@ -51,7 +53,7 @@ class Accept extends AbstractComponent
     protected function findFirstMatchedContentType(array $contentTypes)
     {
         foreach ($contentTypes as $contentType) {
-            if (in_array($contentType, $this->settings['contentTypes'])) {
+            if (in_array($contentType, $this->settings['media.types'])) {
                 return $contentType;
             }
         }

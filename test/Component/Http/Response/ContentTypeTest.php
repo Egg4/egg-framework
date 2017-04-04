@@ -25,7 +25,7 @@ class ContentTypeTest extends \Egg\Test
         ]);
 
         $component = new ContentTypeComponent([
-            'contentTypes' => ['application/json']
+            'media.types' => ['application/json']
         ]);
         $component->setContainer($container);
 
@@ -53,7 +53,7 @@ class ContentTypeTest extends \Egg\Test
         ]);
 
         $component = new ContentTypeComponent([
-            'contentTypes' => ['application/json']
+            'media.types' => ['application/json']
         ]);
         $component->setContainer($container);
 

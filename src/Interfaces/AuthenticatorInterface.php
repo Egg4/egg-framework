@@ -4,7 +4,7 @@ namespace Egg\Interfaces;
 
 interface AuthenticatorInterface
 {
-    public function register($data);
+    public function register(array $data);
     public function unregister($key);
     public function authenticate($key);
 }

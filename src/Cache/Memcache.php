@@ -4,7 +4,6 @@ namespace Egg\Cache;
 
 class Memcache extends AbstractCache
 {
-    protected $settings;
     protected $memcache;
 
     public function __construct(array $settings = [])
@@ -24,11 +23,6 @@ class Memcache extends AbstractCache
             $this->settings['port'],
             $this->settings['timeout']
         );
-    }
-
-    protected function buildKey($key)
-    {
-        return empty($this->settings['namespace']) ? $key : $this->settings['namespace'] . '.' . $key;
     }
 
     public function get($key)

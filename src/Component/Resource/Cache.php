@@ -18,9 +18,9 @@ class Cache extends AbstractComponent
         ];
 
         $this->settings = array_merge([
-            'keyPattern'    => 'resource.{resource}.{id}',
-            'cacheRoutes'   => ['read'],
-            'uncacheRoutes' => ['replace', 'update', 'delete'],
+            'key'           => 'resource.{resource}.{id}',
+            'route.cache'   => ['read'],
+            'route.uncache' => ['replace', 'update', 'delete'],
         ], $settings);
     }
 
@@ -35,23 +35,23 @@ class Cache extends AbstractComponent
         $key = str_replace(
             array_keys($replacements),
             array_values($replacements),
-            $this->settings['keyPattern']
+            $this->settings['key']
         );
 
-        if (in_array($routeName, $this->settings['cacheRoutes'])) {
+        if (in_array($routeName, $this->settings['route.cache'])) {
             $content = $this->container['cache']->get($key);
             if ($content) {
                 $response->getBody()->setContent($content);
                 return $response;
             }
         }
-        elseif (in_array($routeName, $this->settings['uncacheRoutes'])) {
+        elseif (in_array($routeName, $this->settings['route.uncache'])) {
             $this->container['cache']->delete($key);
         }
 
         $response = $next($request, $response);
 
-        if (in_array($routeName, $this->settings['cacheRoutes'])) {
+        if (in_array($routeName, $this->settings['route.cache'])) {
             $content = $response->getBody()->getContent();
             $this->container['cache']->set($key, $content);
         }

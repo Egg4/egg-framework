@@ -22,7 +22,7 @@ class Search extends AbstractComponent
         ];
 
         $this->settings = array_merge([
-            'searchKey' => 'search',
+            'key' => 'search',
         ], $settings);
     }
 
@@ -31,7 +31,7 @@ class Search extends AbstractComponent
         $this->container['router']->map(
             static::ACTION,
             'GET',
-            sprintf('/%s', $this->settings['searchKey'])
+            sprintf('/%s', $this->settings['key'])
         );
     }
 

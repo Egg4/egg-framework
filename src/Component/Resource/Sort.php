@@ -17,8 +17,8 @@ class Sort extends AbstractComponent
 
         $this->settings = array_merge([
             'routes'    => ['select', 'search'],
-            'sortKey'   => 'sort',
-            'descKey'   => 'desc',
+            'key.sort'   => 'sort',
+            'key.desc'   => 'desc',
         ], $settings);
     }
 
@@ -26,9 +26,9 @@ class Sort extends AbstractComponent
     {
         $route = $request->getAttribute('route');
         if (in_array($route->getName(), $this->settings['routes'])) {
-            $sort = $request->getQueryParam($this->settings['sortKey'], '');
+            $sort = $request->getQueryParam($this->settings['key.sort'], '');
             $sort = empty($sort) ? [] : explode(',', $sort);
-            $desc = $request->getQueryParam($this->settings['descKey'], '');
+            $desc = $request->getQueryParam($this->settings['key.desc'], '');
             $desc = empty($desc) ? [] : explode(',', $desc);
 
             // check params
@@ -42,7 +42,7 @@ class Sort extends AbstractComponent
                 throw new \Egg\Http\Exception($response, 400, new \Egg\Http\Error(array(
                     'name'          => 'invalid_sort',
                     'description'   => sprintf('Sort key "%s" must contain "%s" keys',
-                        $this->settings['sortKey'],
+                        $this->settings['key.sort'],
                         implode(',', $errorParams)
                     ),
                 )));

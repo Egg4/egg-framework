@@ -17,7 +17,7 @@ class Filter extends AbstractComponent
 
         $this->settings = array_merge([
             'routes'        => ['select', 'search'],
-            'skipParams'    => ['range', 'sort', 'asc', 'desc'],
+            'params.escape'   => ['range', 'sort', 'asc', 'desc'],
         ], $settings);
     }
 
@@ -28,7 +28,7 @@ class Filter extends AbstractComponent
             $filterParams = [];
             $params = $request->getQueryParams();
             foreach ($params as $key => $value) {
-                if (in_array($key, $this->settings['skipParams'])) continue;
+                if (in_array($key, $this->settings['params.escape'])) continue;
                 if (strtolower($value) == 'null')   $value = null;
                 if (strpos($value, ',') !== false)  $value = explode(',', $value);
                 $filterParams[$key] = $value;

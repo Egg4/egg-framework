@@ -17,12 +17,11 @@ class GenericTest extends \Egg\Test
         ];
 
         $request = \Egg\FactoryTest::createRequest();
-        $request = $request->withAttribute('resource', 'users');
 
         $container = new Container([
             'request'   => $request,
             'repository' => new Container([
-                'users'     => new ClosureRepository(function($action, $arguments) use($id, $data) {
+                'user'     => new ClosureRepository(function($action, $arguments) use($id, $data) {
                     static $i = 0;
                     $i++;
                     if ($i == 1) {
@@ -39,9 +38,11 @@ class GenericTest extends \Egg\Test
             ]),
         ]);
 
-        $controller = new GenericController();
-        $controller->setContainer($container);
-        $controller->init();
+        $controller = new GenericController([
+            'container' => $container,
+            'resource'  => 'user',
+        ]);
+
         $result = $controller->execute('create', [$data]);
         $this->assertEquals($data, $result);
     }
@@ -55,12 +56,11 @@ class GenericTest extends \Egg\Test
         ];
 
         $request = \Egg\FactoryTest::createRequest();
-        $request = $request->withAttribute('resource', 'users');
 
         $container = new Container([
             'request'   => $request,
             'repository' => new Container([
-                'users' => new ClosureRepository(function($action, $arguments) use($id, $data) {
+                'user' => new ClosureRepository(function($action, $arguments) use($id, $data) {
                     $this->assertEquals('selectOne', $action);
                     $this->assertEquals(['id' => $id], $arguments[0]);
                     return $data;
@@ -68,9 +68,11 @@ class GenericTest extends \Egg\Test
             ]),
         ]);
 
-        $controller = new GenericController();
-        $controller->setContainer($container);
-        $controller->init();
+        $controller = new GenericController([
+            'container' => $container,
+            'resource'  => 'user',
+        ]);
+
         $result = $controller->execute('read', [$id]);
         $this->assertEquals($data, $result);
     }
@@ -84,12 +86,11 @@ class GenericTest extends \Egg\Test
         ];
 
         $request = \Egg\FactoryTest::createRequest();
-        $request = $request->withAttribute('resource', 'users');
 
         $container = new Container([
             'request'   => $request,
             'repository' => new Container([
-                'users' => new ClosureRepository(function($action, $arguments) use($id, $data) {
+                'user' => new ClosureRepository(function($action, $arguments) use($id, $data) {
                     static $i = 0;
                     $i++;
                     if ($i == 1) {
@@ -107,9 +108,11 @@ class GenericTest extends \Egg\Test
             ]),
         ]);
 
-        $controller = new GenericController();
-        $controller->setContainer($container);
-        $controller->init();
+        $controller = new GenericController([
+            'container' => $container,
+            'resource'  => 'user',
+        ]);
+
         $result = $controller->execute('update', [$id, $data]);
         $this->assertEquals($data, $result);
     }
@@ -119,21 +122,22 @@ class GenericTest extends \Egg\Test
         $id = 27;
 
         $request = \Egg\FactoryTest::createRequest();
-        $request = $request->withAttribute('resource', 'users');
 
         $container = new Container([
             'request'   => $request,
             'repository' => new Container([
-                'users' => new ClosureRepository(function($action, $arguments) use($id) {
+                'user' => new ClosureRepository(function($action, $arguments) use($id) {
                     $this->assertEquals('delete', $action);
                     $this->assertEquals(['id' => $id], $arguments[0]);
                 }),
             ]),
         ]);
 
-        $controller = new GenericController();
-        $controller->setContainer($container);
-        $controller->init();
+        $controller = new GenericController([
+            'container' => $container,
+            'resource'  => 'user',
+        ]);
+
         $controller->execute('delete', [$id]);
     }
 }

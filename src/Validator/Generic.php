@@ -4,12 +4,15 @@ namespace Egg\Validator;
 
 class Generic extends AbstractValidator
 {
-    protected $repository;
+    protected $resource;
 
-    public function init()
+    public function __construct(array $settings = [])
     {
-        $resource = $this->container['request']->getAttribute('resource');
-        $this->repository = $this->container['repository'][$resource];
+        $this->settings = array_merge([
+
+        ], $settings);
+        $this->container = $settings['container'];
+        $this->resource = $settings['resource'];
     }
 
     public function select(array $filterParams, array $sortParams, array $rangeParams)
@@ -51,7 +54,7 @@ class Generic extends AbstractValidator
 
     protected function checkEntityExists($id)
     {
-        $entity = $this->repository->selectOneById($id);
+        $entity = $this->container['repository'][$this->resource]->selectOneById($id);
         if (!$entity) {
             $this->exception->addError(new \Egg\Http\Error(array(
                 'name'          => 'not_found',

@@ -31,7 +31,7 @@ class CacheTest extends \Egg\Test
         $request = $request->withAttribute('route', $route);
         $response = \Egg\FactoryTest::createResponse();
 
-        $component = new CacheComponent(['keyPattern' => 'key']);
+        $component = new CacheComponent(['key' => 'key']);
         $component->setContainer($container);
         $response = $component($request, $response, function($request, $response) {
             $response->getBody()->setContent('data');

@@ -18,14 +18,16 @@ class CacheTest extends \Egg\Test
         $container = new Container([
             'cache'     => new ClosureCache(function($action, $arguments) use ($user) {
                 $this->assertEquals('set', $action);
-                $this->assertEquals($user, $arguments[1]);
+                $this->assertEquals($user['login'], $arguments[1]['login']);
             }),
         ]);
 
-        $authenticator = new CacheAuthenticator();
-        $authenticator->setContainer($container);
-        $authenticator->init();
-        $this->assertEquals(32, strlen($authenticator->register($user)));
+        $authenticator = new CacheAuthenticator([
+            'cache' => $container['cache'],
+        ]);
+
+        $authentication = $authenticator->register($user);
+        $this->assertEquals(32, strlen($authentication['key']));
     }
 
     public function testShouldUnregister()
@@ -37,9 +39,11 @@ class CacheTest extends \Egg\Test
             }),
         ]);
 
-        $authenticator = new CacheAuthenticator();
-        $authenticator->setContainer($container);
-        $authenticator->init();
+        $authenticator = new CacheAuthenticator([
+            'cache'     => $container['cache'],
+            'namespace' => 'authentication',
+        ]);
+
         $authenticator->unregister('key');
     }
 
@@ -53,14 +57,18 @@ class CacheTest extends \Egg\Test
         $container = new Container([
             'cache'     => new ClosureCache(function($action, $arguments) use ($user) {
                 $this->assertEquals('get', $action);
-                $this->assertEquals('authentication.key', $arguments[0]);
+                $this->assertEquals('key', $arguments[0]);
                 return $user;
             }),
         ]);
 
-        $authenticator = new CacheAuthenticator();
-        $authenticator->setContainer($container);
-        $authenticator->init();
-        $this->assertEquals($user, $authenticator->authenticate('key'));
+        $authenticator = new CacheAuthenticator([
+            'cache'     => $container['cache'],
+            'namespace' => '',
+        ]);
+
+        $authentication = $authenticator->authenticate('key');
+
+        $this->assertEquals($user['login'], $authentication['login']);
     }
 }

@@ -16,17 +16,19 @@ class ContentType extends AbstractComponent
             \Egg\Component\Http\Exception::class,
         ];
 
-        $this->settings = $settings;
+        $this->settings = array_merge([
+            'media.types'        => [],
+        ], $settings);
     }
 
     public function run(Request $request, Response $response, Component $next)
     {
         if ($request->hasHeader('Content-Type')) {
             $contentType = $request->getMediaType();
-            if ($contentType AND !in_array($contentType, $this->settings['contentTypes'])) {
+            if ($contentType AND !in_array($contentType, $this->settings['media.types'])) {
                 throw new \Egg\Http\Exception($response, 415, new \Egg\Http\Error(array(
                     'name'          => 'unsupported_content_type',
-                    'description'   => sprintf('"Content-Type" header must be in: %s', implode(', ', $this->settings['contentTypes'])),
+                    'description'   => sprintf('"Content-Type" header must be in: %s', implode(', ', $this->settings['media.types'])),
                 )));
             }
             $parser = $this->container['parser']->get($contentType);

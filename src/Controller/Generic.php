@@ -6,10 +6,14 @@ class Generic extends AbstractController
 {
     protected $repository;
 
-    public function init()
+    public function __construct(array $settings = [])
     {
-        $resource = $this->container['request']->getAttribute('resource');
-        $this->repository = $this->container['repository'][$resource];
+        $this->settings = array_merge([
+
+        ], $settings);
+        $this->container = $settings['container'];
+        $this->resource = $settings['resource'];
+        $this->repository = $this->container['repository'][$this->resource];
     }
 
     public function select(array $filterParams, array $sortParams, array $rangeParams)

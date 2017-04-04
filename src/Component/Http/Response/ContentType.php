@@ -17,6 +17,7 @@ class ContentType extends AbstractComponent
         ];
 
         $this->settings = array_merge([
+            'media.types'   => [],
             'charset'       => 'UTF-8',
         ], $settings);
     }
@@ -42,7 +43,7 @@ class ContentType extends AbstractComponent
             $contentType = $this->findFirstMatchedContentType($contentTypes);
         }
         if (!$contentType) {
-            $keys = $this->settings['contentTypes'];
+            $keys = $this->settings['media.types'];
             $contentType = array_shift($keys);
         }
 
@@ -75,7 +76,7 @@ class ContentType extends AbstractComponent
     protected function findFirstMatchedContentType(array $contentTypes)
     {
         foreach ($contentTypes as $contentType) {
-            if (in_array($contentType, $this->settings['contentTypes'])) {
+            if (in_array($contentType, $this->settings['media.types'])) {
                 return $contentType;
             }
         }

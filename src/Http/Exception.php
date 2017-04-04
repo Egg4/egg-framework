@@ -2,6 +2,8 @@
 
 namespace Egg\Http;
 
+use \Egg\Yolk\Set;
+
 class Exception extends \Exception
 {
     protected $response;
@@ -26,7 +28,7 @@ class Exception extends \Exception
 
     public function getErrors()
     {
-        return $this->errors;
+        return new Set($this->errors);
     }
 
     public function hasErrors()
