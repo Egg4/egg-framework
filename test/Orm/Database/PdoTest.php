@@ -27,6 +27,12 @@ class PdoTest extends \PHPUnit\Framework\TestCase
           PRIMARY KEY (`id`)
           ) ENGINE=InnoDB DEFAULT CHARSET=utf8;';
         static::$database->execute($sql);
+
+        /*
+         *@todo
+         */
+        $schema = new \Egg\Orm\Schema\Mysql(['database' => static::$database]);
+        var_dump($schema->getData());
     }
 
     public static function tearDownAfterClass()

@@ -12,6 +12,11 @@ class Closure extends AbstractDatabase
         $this->closure = $closure;
     }
 
+    public function getName()
+    {
+        return call_user_func_array($this->closure, ['getName']);
+    }
+
     public function execute($sql, array $params = [])
     {
         return call_user_func_array($this->closure, ['execute', [$sql, $params]]);

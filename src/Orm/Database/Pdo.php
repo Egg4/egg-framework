@@ -32,6 +32,11 @@ class Pdo extends AbstractDatabase
         ]);
     }
 
+    public function getName()
+    {
+        return $this->settings['dbname'];
+    }
+
     public function execute($sql, array $params = [])
     {
         $statement = $this->pdo->prepare($sql);

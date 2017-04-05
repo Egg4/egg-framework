@@ -16,11 +16,6 @@ class Closure extends AbstractRepository
         return call_user_func_array($this->closure, ['execute', [$sql, $params]]);
     }
 
-    public function getDatabase()
-    {
-        return call_user_func_array($this->closure, ['getDatabase']);
-    }
-
     public function insert(array $data)
     {
         return call_user_func_array($this->closure, ['insert', [$data]]);

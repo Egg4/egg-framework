@@ -11,6 +11,7 @@ class Cache extends AbstractAuthenticator
         $this->settings = array_merge([
             'cache'         => null,
             'namespace'     => 'authentication',
+            'key.length'    => 32,
         ], $settings);
     }
 
@@ -21,7 +22,7 @@ class Cache extends AbstractAuthenticator
 
     public function register(array $data)
     {
-        $id = md5(mt_rand());
+        $id = \Egg\Yolk\Rand::alphanum($this->settings['key.length']);
         $data['key'] = $id;
         $key = $this->buildKey($id);
         $this->settings['cache']->set($key, $data);

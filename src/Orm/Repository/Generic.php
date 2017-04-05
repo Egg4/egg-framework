@@ -14,11 +14,6 @@ class Generic extends AbstractRepository
         ], $settings);
     }
 
-    public function getDatabase()
-    {
-        return $this->settings['database'];
-    }
-
     public function insert(array $data)
     {
         $sql    = $this->settings['database']->prepareInsert($this->settings['table'], $data);
