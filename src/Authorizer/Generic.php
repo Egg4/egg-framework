@@ -55,7 +55,7 @@ class Generic extends AbstractAuthorizer
         return [$selfAttribute => $ids];
     }
 
-    public function analyse($action)
+    protected function analyse($action)
     {
         $right = 'deny';
         if (isset($this->settings['actions']['*'])) {
@@ -142,6 +142,11 @@ class Generic extends AbstractAuthorizer
         if (!empty($filterParams)) {
             $this->checkEntityExists(array_merge(['id' => $id], $filterParams));
         }
+    }
+
+    public function __call($action, $arguments)
+    {
+        $this->analyse($action);
     }
 
     protected function checkParams($params, $filterParams)

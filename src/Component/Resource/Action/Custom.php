@@ -51,9 +51,8 @@ class Custom extends AbstractComponent
                 $response = $response->withStatus(204);
             }
             else {
-                $content = $this->container['serializer'][$resource]->serialize($result);
                 $response = $response->withStatus(200);
-                $response->getBody()->setContent($content);
+                $response->getBody()->setContent($result);
             }
         }
 

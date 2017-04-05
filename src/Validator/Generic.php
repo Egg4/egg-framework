@@ -52,6 +52,11 @@ class Generic extends AbstractValidator
         $this->checkEntityExists($id);
     }
 
+    public function __call($action, $arguments)
+    {
+
+    }
+
     protected function checkEntityExists($id)
     {
         $entity = $this->container['repository'][$this->resource]->selectOneById($id);
@@ -70,6 +75,23 @@ class Generic extends AbstractValidator
                 'name'          => 'invalid_content',
                 'description'   => 'No content',
             )));
+        }
+    }
+
+    protected function requireParam($key, array $params)
+    {
+        if (!isset($params[$key])) {
+            $this->exception->addError(new \Egg\Http\Error(array(
+                'name'          => 'invalid_content',
+                'description'   => sprintf('Param "%s" is required', $key),
+            )));
+        }
+    }
+
+    protected function requireParams(array $keys, array $params)
+    {
+        foreach($keys as $key) {
+            $this->requireParam($key, $params);
         }
     }
 }
