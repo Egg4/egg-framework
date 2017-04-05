@@ -86,7 +86,7 @@ class Authentication extends AbstractComponent
             if (!in_array($resource, ['*', $route->getArgument('resource')])) {
                 continue;
             }
-            if (!in_array($action, ['*', $route->getName(), $route->getArgument('action')])) {
+            if (!in_array($action, ['*', $route->getName(), $route->getArgument('custom')])) {
                 continue;
             }
             return true;

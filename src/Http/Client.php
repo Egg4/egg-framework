@@ -15,6 +15,16 @@ class Client
         $this->headers = $headers;
     }
 
+    public function setHeader($key, $value)
+    {
+        $this->headers[$key] = $value;
+    }
+
+    public function removeHeader($key)
+    {
+        unset($this->headers[$key]);
+    }
+
     protected function send($method, $uri, array $headers = [], $body = null)
     {
         $this->container['request'] = $this->buildRequest($method, $uri, $headers, $body);

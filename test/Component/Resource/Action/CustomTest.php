@@ -7,7 +7,6 @@ use \Egg\Component\Resource\Action\Custom as CustomComponent;
 use \Egg\Authorizer\Closure as ClosureAuthorizer;
 use \Egg\Validator\Closure as ClosureValidator;
 use \Egg\Controller\Closure as ClosureController;
-use \Egg\Serializer\Closure as ClosureSerializer;
 
 class CustomTest extends \Egg\Test
 {
@@ -35,17 +34,11 @@ class CustomTest extends \Egg\Test
             return $result;
         });
 
-        $serializer = new ClosureSerializer(function($input) use($result) {
-            $this->assertEquals($input, $result);
-            return 'result';
-        });
-
         $container = new Container([
             'router'        => \Egg\FactoryTest::createRouter(),
             'authorizer'    => new Container(['users' => $authorizer]),
             'controller'    => new Container(['users' => $controller]),
             'validator'     => new Container(['users' => $validator]),
-            'serializer'    => new Container(['users' => $serializer]),
         ]);
         $request = \Egg\FactoryTest::createRequest([
             'REQUEST_METHOD'        => 'POST',
@@ -61,7 +54,7 @@ class CustomTest extends \Egg\Test
 
         $response = $component($request, $response);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('result', $response->getBody()->getContent());
+        $this->assertEquals($result, $response->getBody()->getContent());
     }
 
     public function testShouldReturn204()

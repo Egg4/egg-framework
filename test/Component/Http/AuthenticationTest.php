@@ -64,7 +64,7 @@ class AuthenticationTest extends \Egg\Test
         ]);
         $component->setContainer($container);
         $component->init();
-        $container['router']->map('custom', 'POST', '/{resource}/{action}');
+        $container['router']->map('custom', 'POST', '/{resource}/{custom}');
         $request = $container['router']->dispatch($container['request']);
         $next = function($request, $response) {
             $this->assertEmpty($request->getAttribute('authentication'));

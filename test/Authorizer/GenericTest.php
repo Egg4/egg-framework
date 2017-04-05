@@ -58,10 +58,9 @@ class GenericTest extends \Egg\Test
             ]),
         ]);
         $container['authorizer'] = new Container(function($resource) use ($container, $settings) {
-            $authorizer = new GenericAuthorizer($settings[$resource]);
-            $authorizer->setContainer($container);
-            $authorizer->init();
-            return $authorizer;
+            $settings[$resource]['container'] = $container;
+            $settings[$resource]['resource'] = $resource;
+            return new GenericAuthorizer($settings[$resource]);
         });
 
         $container['authorizer']['room']->authorize('update', [4, $data]);
@@ -107,9 +106,9 @@ class GenericTest extends \Egg\Test
             ]),
         ]);
         $container['authorizer'] = new Container(function($resource) use ($container, $settings) {
-            $authorizer = new GenericAuthorizer($settings[$resource]);
-            $authorizer->setContainer($container);
-            $authorizer->init();
+            $settings[$resource]['container'] = $container;
+            $settings[$resource]['resource'] = $resource;
+            return new GenericAuthorizer($settings[$resource]);
             return $authorizer;
         });
 
