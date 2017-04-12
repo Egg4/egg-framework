@@ -9,18 +9,19 @@ class Generic extends AbstractFactory
         $this->settings = array_merge([
             'schema'        => null,
             'table'         => null,
-            'repository'    => null,
+            'repositories'  => [],
         ], $settings);
     }
 
     public function create(array $data = [])
     {
         $schema = $this->settings['schema']->getData();
-        $columns = $schema['tables'][$this->settings['table']]['columns'];
+        $columns = $schema->tables[$this->settings['table']]->columns;
         $data = $this->generateAttributes($columns, $data);
 
-        $id = $this->settings['repository']->insert($data);
-        $entity = $this->settings['repository']->selectOneById($id);
+        $repository = $this->settings['repositories'][$this->settings['table']];
+        $id = $repository->insert($data);
+        $entity = $repository->selectOneById($id);
 
         return $entity;
     }
@@ -34,11 +35,7 @@ class Generic extends AbstractFactory
                 $attributes[$name] = $data[$name];
                 continue;
             }
-            if ($column['auto.increment']) {
-                continue;
-            }
-            if ($column['default']) {
-                $attributes[$name] = $column['default'];
+            if ($column->auto_increment) {
                 continue;
             }
             $attributes[$name] = $this->generateAttribute($column);
@@ -49,12 +46,27 @@ class Generic extends AbstractFactory
 
     protected function generateAttribute($column)
     {
-        switch ($column['type']) {
+        if ($column->foreign_key !== null) {
+            $table = $column->foreign_key->foreign_column->table->name;
+            $factory = new Generic([
+                'schema'        => $this->settings['schema'],
+                'table'         => $table,
+                'repositories'  => $this->settings['repositories'],
+            ]);
+            $entity = $factory->create();
+            return $entity->id;
+        }
+
+        if ($column->default !== null) {
+            return $column->default;
+        }
+
+        switch ($column->type) {
             case 'integer':
-                $min = $column['unsigned'] ? 0 : PHP_INT_MIN;
+                $min = $column->unsigned ? 0 : PHP_INT_MIN;
                 return \Egg\Yolk\Rand::integer($min, PHP_INT_MAX);
             case 'string':
-                return \Egg\Yolk\Rand::alphanum(min(32, $column['max.length']));
+                return \Egg\Yolk\Rand::alphanum(min(32, $column->max_length));
             case 'boolean':
                 return \Egg\Yolk\Rand::boolean() ? 1 : 0;
             case 'float':

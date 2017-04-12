@@ -4,106 +4,162 @@ namespace Egg\Orm\Schema;
 
 class Mysql extends AbstractSchema
 {
-    protected $data = [];
-
     public function __construct(array $settings = [])
     {
         $this->settings = array_merge([
-            'database'           => null,
-            'cache'              => null,
-            'entitySet.class'    => \Egg\Orm\EntitySet\Generic::class,
-            'entity.class'       => \Egg\Orm\Entity\Generic::class,
+            'database'          => null,
+            'cache'             => null,
+            'namespace'         => 'schema',
+            'entitySet.class'   => \Egg\Orm\EntitySet\Generic::class,
+            'entity.class'      => \Egg\Orm\Entity\Generic::class,
         ], $settings);
     }
 
     public function getData()
     {
-        /*
-        $key = 'schema.' . $this->database;
-        if ($this->cache) {
-            $data = $this->cache->get($key);
+        $key = $this->buildKey($this->settings['database']->getName());
+        if ($this->settings['cache']) {
+            $data = $this->settings['cache']->get($key);
             if ($data) return $data;
         }
 
-        if ($this->cache) {
-            $this->cache->set($key, $database);
-        }*/
+        $data = $this->buildSchema();
 
-        return $this->getSchema();
+        if ($this->settings['cache']) {
+            $this->settings['cache']->set($key, $data);
+        }
+
+        return $data;
     }
 
-    protected function getSchema()
+    protected function buildKey($key)
     {
-        $databaseName = $this->settings['database']->getName();
+        return $this->settings['namespace'] ? $this->settings['namespace'] . '.' . $key : $key;
+    }
 
-        return [
-            'name'          => $databaseName,
-            'tables'        => $this->getTables($databaseName),
-            //'foreign.keys'  => $this->getForeignKeys($databaseName),
-        ];
+    protected function buildSchema()
+    {
+        $database = new \stdClass();
+        $database->name = $this->settings['database']->getName();
+        $database->tables = [];
+        $this->buildTables($database);
+        $this->buildColumns($database);
+        $this->buildForeignKeys($database);
+        $this->buildUniqueKeys($database);
+
+        return $database;
+    }
+
+    protected function buildTables($database)
+    {
+        $tables = $this->getTables($database->name);
+        foreach ($tables as $table) {
+            $table->database = $database;
+            $table->columns = [];
+            $table->foreign_keys = [];
+            $table->unique_keys = [];
+            $database->tables[$table->name] = $table;
+        }
+    }
+
+    protected function buildColumns($database)
+    {
+        $columns = $this->getColumns($database->name);
+        foreach ($columns as $column) {
+            $column->table = $database->tables[$column->table_name];
+            $column->foreign_key = null;
+            unset($column->table_name);
+            $column->table->columns[$column->name] = $column;
+        }
+    }
+
+    protected function buildForeignKeys($database)
+    {
+        $foreignKeys = $this->getForeignKeys($database->name);
+        foreach ($foreignKeys as $foreignKey) {
+            $foreignKey->column = $database->tables[$foreignKey->table_name]->columns[$foreignKey->column_name];
+            $foreignKey->foreign_column = $database->tables[$foreignKey->reference_table_name]->columns[$foreignKey->reference_column_name];
+            unset($foreignKey->table_name);
+            unset($foreignKey->column_name);
+            unset($foreignKey->reference_table_name);
+            unset($foreignKey->reference_column_name);
+            $foreignKey->column->foreign_key = $foreignKey;
+            $foreignKey->column->table->foreign_keys[$foreignKey->name] = $foreignKey;
+        }
+    }
+
+    protected function buildUniqueKeys($database)
+    {
+        $uniqueKeys = $this->getUniqueKeys($database->name);
+        foreach ($uniqueKeys as $uniqueKey) {
+            $table = $database->tables[$uniqueKey->table_name];
+            if (!isset($table->unique_keys[$uniqueKey->name])) {
+                $uniqueKey->columns[$uniqueKey->column_name] = $table->columns[$uniqueKey->column_name];
+                unset($uniqueKey->table_name);
+                unset($uniqueKey->column_name);
+                $table->unique_keys[$uniqueKey->name] = $uniqueKey;
+            }
+            else {
+                $table->unique_keys[$uniqueKey->name]->columns[$uniqueKey->column_name] = $table->columns[$uniqueKey->column_name];
+            }
+        }
     }
 
     protected function getTables($databaseName)
     {
-        $tables = [];
-
         $sql = sprintf("SELECT *
                         FROM `information_schema`.`tables`
                         WHERE `table_schema` = '%s'
+                        ORDER BY `table_name`
                        ", $databaseName);
 
         $statement = $this->settings['database']->execute($sql);
         $entities = $statement->fetchEntitySet($this->settings['entitySet.class'], $this->settings['entity.class']);
         $rows = $entities->toArray();
 
+        $tables = [];
         foreach ($rows as $row) {
-            $tables[$row['TABLE_NAME']] = [
-                'name'          => $row['TABLE_NAME'],
-                'engine'        => $row['ENGINE'],
-                'columns'       => $this->getColumns($databaseName, $row['TABLE_NAME']),
-                //'unique.keys'   => '',
+            $tables[] = (object) [
+                'name'      => $row['TABLE_NAME'],
+                'engine'    => $row['ENGINE'],
             ];
         }
 
         return $tables;
     }
 
-    protected function getColumns($databaseName, $tableName)
+    protected function getColumns($databaseName)
     {
-        $columns = [];
-
         $sql = sprintf("SELECT *
                         FROM `information_schema`.`columns`
                         WHERE `table_schema` = '%s'
-                        AND `table_name` = '%s'
                         ORDER BY `ordinal_position`
-                       ", $databaseName, $tableName);
+                       ", $databaseName);
 
         $statement = $this->settings['database']->execute($sql);
         $entities = $statement->fetchEntitySet($this->settings['entitySet.class'], $this->settings['entity.class']);
         $rows = $entities->toArray();
 
+        $columns = [];
         foreach ($rows as $row) {
-            $columns[$row['COLUMN_NAME']] = [
+            $columns[] = (object) [
                 'name'              => $row['COLUMN_NAME'],
+                'table_name'        => $row['TABLE_NAME'],
                 'type'              => $this->normalizeColumnType($row['DATA_TYPE']),
                 'primary'           => ($row['COLUMN_KEY'] == 'PRI'),
                 'nullable'          => ($row['IS_NULLABLE'] != 'NO'),
                 'default'           => $row['COLUMN_DEFAULT'],
                 'unsigned'          => (strpos($row['COLUMN_TYPE'], 'unsigned') !== false),
-                'auto.increment'    => (strpos($row['EXTRA'], 'auto_increment') !== false),
-                'max.length'        => $row['CHARACTER_MAXIMUM_LENGTH'],
+                'auto_increment'    => (strpos($row['EXTRA'], 'auto_increment') !== false),
+                'max_length'        => $row['CHARACTER_MAXIMUM_LENGTH'],
             ];
         }
 
         return $columns;
     }
 
-    /*
-    protected function getForeignKeys($database)
+    protected function getForeignKeys($databaseName)
     {
-        $foreignKeys = array();
-
         $sql = sprintf("SELECT kcu.*
                         FROM `information_schema`.`table_constraints` as tc, `information_schema`.`key_column_usage` as kcu
                         WHERE tc.`table_schema` = kcu.`table_schema`
@@ -111,57 +167,52 @@ class Mysql extends AbstractSchema
                         AND tc.`constraint_name` = kcu.`constraint_name`
                         AND tc.`table_schema` = '%s'
                         AND tc.`constraint_type` = 'FOREIGN KEY'
-                       ", $database->name);
-        $rows = $this->pdo->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
+                        ORDER BY kcu.`constraint_name`
+                       ", $databaseName);
+        $statement = $this->settings['database']->execute($sql);
+        $entities = $statement->fetchEntitySet($this->settings['entitySet.class'], $this->settings['entity.class']);
+        $rows = $entities->toArray();
 
+        $foreignKeys = [];
         foreach ($rows as $row) {
-            $foreignKey = new \Egg\Orm\Schema\ForeignKey();
-            $foreignKey->name = $row['CONSTRAINT_NAME'];
-            $foreignKey->database = $database;
-            $foreignKey->column = $database->tables[$row['TABLE_NAME']]->columns[$row['COLUMN_NAME']];
-            $foreignKey->referencedColumn = $database->tables[$row['REFERENCED_TABLE_NAME']]->columns[$row['REFERENCED_COLUMN_NAME']];
-
-            $foreignKeys[$foreignKey->name] = $foreignKey;
+            $foreignKeys[] = (object) [
+                'name'                  => $row['CONSTRAINT_NAME'],
+                'table_name'            => $row['TABLE_NAME'],
+                'column_name'           => $row['COLUMN_NAME'],
+                'reference_table_name'  => $row['REFERENCED_TABLE_NAME'],
+                'reference_column_name' => $row['REFERENCED_COLUMN_NAME'],
+            ];
         }
 
         return $foreignKeys;
     }
 
-    protected function getUniqueKeys($table)
+    protected function getUniqueKeys($databaseName)
     {
-        $uniqueKeys = array();
-
         $sql = sprintf("SELECT kcu.*
                         FROM `information_schema`.`table_constraints` as tc, `information_schema`.`key_column_usage` as kcu
                         WHERE tc.`table_schema` = kcu.`table_schema`
                         AND tc.`table_name` = kcu.`table_name`
                         AND tc.`constraint_name` = kcu.`constraint_name`
                         AND tc.`table_schema` = '%s'
-                        AND tc.`table_name` = '%s'
                         AND tc.`constraint_type` = 'UNIQUE'
-                        ORDER BY kcu.`ordinal_position`
-                       ", $table->database->name, $table->name);
-        $rows = $this->pdo->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
+                        ORDER BY kcu.`constraint_name`, kcu.`table_name`, kcu.`ordinal_position`
+                       ", $databaseName);
+        $statement = $this->settings['database']->execute($sql);
+        $entities = $statement->fetchEntitySet($this->settings['entitySet.class'], $this->settings['entity.class']);
+        $rows = $entities->toArray();
 
+        $uniqueKeys = [];
         foreach ($rows as $row) {
-            $name = $row['CONSTRAINT_NAME'];
-            if (!isset($uniqueKeys[$name])) {
-                $uniqueKey = new \Egg\Orm\Schema\UniqueKey();
-                $uniqueKey->name = $name;
-                $uniqueKey->table = $table;
-                $uniqueKey->columns[] = $table->columns[$row['COLUMN_NAME']];
-
-                $uniqueKeys[$uniqueKey->name] = $uniqueKey;
-            }
-            else {
-                $uniqueKey = $uniqueKeys[$name];
-                $uniqueKey->columns[] = $table->columns[$row['COLUMN_NAME']];
-            }
+            $uniqueKeys[] = (object) [
+                'name'                  => $row['CONSTRAINT_NAME'],
+                'table_name'            => $row['TABLE_NAME'],
+                'column_name'           => $row['COLUMN_NAME'],
+            ];
         }
 
         return $uniqueKeys;
     }
-    */
 
     protected function normalizeColumnType($type)
     {

@@ -18,4 +18,15 @@ abstract class FactoryTest
     {
         return new \Egg\Router();
     }
+
+    public static function createPdoDatabase()
+    {
+        return new \Egg\Orm\Database\Pdo([
+            'driver'    => 'mysql',
+            'host'      => 'localhost',
+            'dbname'    => 'test',
+            'login'     => 'root',
+            'password'  => '536546',
+        ]);
+    }
 }

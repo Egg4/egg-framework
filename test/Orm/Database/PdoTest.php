@@ -2,7 +2,7 @@
 
 namespace Egg\Orm\Database;
 
-use Egg\Orm\Database\Pdo as Database;
+use Egg\FactoryTest;
 use Egg\Orm\EntitySet\Generic as EntitySet;
 use Egg\Orm\Entity\Generic as Entity;
 
@@ -12,13 +12,7 @@ class PdoTest extends \PHPUnit\Framework\TestCase
 
     public static function setUpBeforeClass()
     {
-        static::$database = new Database([
-            'driver'    => 'mysql',
-            'host'      => 'localhost',
-            'dbname'    => 'test',
-            'login'     => 'root',
-            'password'  => '536546',
-        ]);
+        static::$database = FactoryTest::createPdoDatabase();
         static::$database->beginTransaction();
         $sql = 'CREATE TABLE `users` (
           `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -27,12 +21,6 @@ class PdoTest extends \PHPUnit\Framework\TestCase
           PRIMARY KEY (`id`)
           ) ENGINE=InnoDB DEFAULT CHARSET=utf8;';
         static::$database->execute($sql);
-
-        /*
-         *@todo
-         */
-        $schema = new \Egg\Orm\Schema\Mysql(['database' => static::$database]);
-        var_dump($schema->getData());
     }
 
     public static function tearDownAfterClass()
@@ -40,7 +28,6 @@ class PdoTest extends \PHPUnit\Framework\TestCase
         $sql = 'DROP TABLE IF EXISTS `users`;';
         static::$database->execute($sql);
         static::$database->rollback();
-        static::$database = null;
     }
 
     public function testShouldInsertData()
