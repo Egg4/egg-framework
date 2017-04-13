@@ -58,4 +58,9 @@ class Generic extends AbstractController
     {
         $this->repository->deleteById($id);
     }
+
+    public function __call($action, $arguments)
+    {
+        throw new \Exception(sprintf('Create a custom controller for "%s" "%s"', $this->resource, $action));
+    }
 }

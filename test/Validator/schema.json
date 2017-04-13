@@ -1,0 +1,80 @@
+{
+  "name": "test",
+  "tables": [
+    {
+      "name": "user"
+    },
+    {
+      "name": "house"
+    }
+  ],
+  "columns": [
+    {
+      "name": "id",
+      "table_name": "user",
+      "type": "integer",
+      "primary": true,
+      "nullable": false,
+      "default": null,
+      "unsigned": true,
+      "auto_increment": true,
+      "max_length": null
+    },
+    {
+      "name": "login",
+      "table_name": "user",
+      "type": "string",
+      "primary": false,
+      "nullable": false,
+      "default": null,
+      "unsigned": false,
+      "auto_increment": false,
+      "max_length": 255
+    },
+    {
+      "name": "id",
+      "table_name": "house",
+      "type": "integer",
+      "primary": true,
+      "nullable": false,
+      "default": null,
+      "unsigned": true,
+      "auto_increment": true,
+      "max_length": null
+    },
+    {
+      "name": "user_id",
+      "table_name": "house",
+      "type": "integer",
+      "primary": false,
+      "nullable": false,
+      "default": null,
+      "unsigned": true,
+      "auto_increment": false,
+      "max_length": null
+    },
+    {
+      "name": "name",
+      "table_name": "house",
+      "type": "string",
+      "primary": false,
+      "nullable": false,
+      "default": null,
+      "unsigned": false,
+      "auto_increment": false,
+      "max_length": 10
+    }
+  ],
+  "foreign_keys": [{
+    "name": "user_fk1",
+    "table_name": "house",
+    "column_name": "user_id",
+    "foreign_table_name": "user",
+    "foreign_column_name": "id"
+  }],
+  "unique_keys": [{
+    "name": "unique",
+    "table_name": "user",
+    "column_name": "login"
+  }]
+}

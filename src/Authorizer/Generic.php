@@ -152,12 +152,12 @@ class Generic extends AbstractAuthorizer
     protected function checkParams($params, $filterParams)
     {
         foreach($filterParams as $key => $value) {
-            if (!isset($params[$key])) {
+            if (!in_array($key, array_keys($params))) {
                 continue;
             }
-            if (is_array($filterParams[$key])
-                AND in_array($params[$key], $filterParams[$key])
-                OR $filterParams[$key] == $params[$key]
+            if (is_array($value)
+                AND in_array($params[$key], $value)
+                OR $value == $params[$key]
             ) {
                 continue;
             }

@@ -2,6 +2,10 @@
 
 namespace Egg\Validator;
 
+use Egg\Exception\InvalidContent as InvalidContentException;
+use Egg\Exception\NotFound as NotFoundException;
+use Egg\Exception\NotUnique as NotUniqueException;
+
 class Generic extends AbstractValidator
 {
     protected $resource;
@@ -28,45 +32,81 @@ class Generic extends AbstractValidator
 
     public function read($id)
     {
-        $this->checkEntityExists($id);
+        $this->checkEntityExists($this->resource, ['id' => $id]);
     }
 
     public function create(array $params)
     {
+        $this->checkRequired($params);
         $this->checkParams($params);
+        $this->checkForeignKeys($params);
+        $this->checkUniqueKeys($params);
     }
 
     public function replace($id, array $params)
     {
+        $this->checkRequired($params);
         $this->checkParams($params);
-        $this->checkEntityExists($id);
+        $this->checkForeignKeys($params);
+        $this->checkUniqueKeys($params, ['id' => $id]);
+        $this->checkEntityExists($this->resource, ['id' => $id]);
     }
 
     public function update($id, array $params)
     {
         $this->checkParams($params);
-        $this->checkEntityExists($id);
+        $this->checkForeignKeys($params);
+        $this->checkUniqueKeys($params, ['id' => $id]);
+        $this->checkEntityExists($this->resource, ['id' => $id]);
     }
 
     public function delete($id)
     {
-        $this->checkEntityExists($id);
+        $this->checkEntityExists($this->resource, ['id' => $id]);
     }
 
     public function __call($action, $arguments)
     {
-
+        throw new \Exception(sprintf('Create a custom validator for "%s" "%s"', $this->resource, $action));
     }
 
-    protected function checkEntityExists($id)
+    protected function requireParams(array $requiredKeys, array $params)
     {
-        $entity = $this->container['repository'][$this->resource]->selectOneById($id);
-        if (!$entity) {
-            $this->exception->addError(new \Egg\Http\Error(array(
-                'name'          => 'not_found',
-                'description'   => sprintf('"%s %s" not found', $this->resource, $id),
-            )));
+        foreach($requiredKeys as $requiredKey) {
+            try {
+                $this->requireParam($requiredKey, $params);
+            }
+            catch (InvalidContentException $exception) {
+                $this->exception->addError(new \Egg\Http\Error(array(
+                    'name'          => 'invalid_content',
+                    'description'   => $exception->getMessage(),
+                )));
+            }
         }
+        if ($this->exception->hasErrors()) {
+            throw $this->exception;
+        }
+    }
+
+    protected function requireParam($requiredKey, $params)
+    {
+        if (!in_array($requiredKey, array_keys($params))) {
+            throw new InvalidContentException(sprintf('Param "%s" is required', $requiredKey));
+        }
+    }
+
+    protected function checkRequired(array $params)
+    {
+        $schema = $this->container['schema']->getData();
+        $table = $schema->tables[$this->resource];
+
+        $requiredKeys = [];
+        foreach($table->columns as $column) {
+            if (!$column->nullable AND is_null($column->default) AND !$column->auto_increment) {
+                $requiredKeys[] = $column->name;
+            }
+        }
+        $this->requireParams($requiredKeys, $params);
     }
 
     protected function checkParams(array $params)
@@ -74,166 +114,195 @@ class Generic extends AbstractValidator
         $schema = $this->container['schema']->getData();
         $table = $schema->tables[$this->resource];
 
-        foreach($table->columns as $column) {
-            if (!$column->nullable AND is_null($column->default) AND !$column->auto_increment) {
-                $this->requireParam($column->name, $params);
+        foreach($params as $key => $value) {
+            try {
+                if (isset($table->columns[$key])) {
+                    $this->checkParam($key, $value, $table->columns[$key]);
+                }
+                else {
+                    $this->checkParam($key, $value);
+                }
             }
-            if (!isset($params[$column->name])) {
-                continue;
-            }
-            $this->checkParam($params[$column->name], $column);
-        }
-
-        foreach($table->unique_keys as $uniqueKey) {
-            $keys = array_keys($uniqueKey->columns);
-            if (count(array_diff($keys, array_keys($params))) == 0) {
-                $uniqueParams = array_intersect_key($params, $keys);
-                $this->checkUnique($uniqueParams);
+            catch (InvalidContentException $exception) {
+                $this->exception->addError(new \Egg\Http\Error(array(
+                    'name'          => 'invalid_content',
+                    'description'   => $exception->getMessage(),
+                )));
             }
         }
+        if ($this->exception->hasErrors()) {
+            throw $this->exception;
+        }
     }
 
-    protected function checkParam($param, $column)
+    protected function checkParam($key, $value, $column = null)
     {
-        if (!$column->nullable) {
-            $this->checkParamNotNull($param, $column);
-        }
-        $this->checkParamType($param, $column);
-        if ($column->foreign_key) {
-            $this->checkForeignKey($param, $column->foreign_key);
+        if (!is_null($column)) {
+            if (!$column->nullable) {
+                $this->checkParamNotNull($key, $value);
+            }
+            $this->checkParamType($key, $value, $column->type, [
+                'unsigned' => $column->unsigned,
+                'maxLength' => $column->max_length,
+            ]);
         }
     }
 
-    protected function checkParamNotNull($param, $column)
+    protected function checkForeignKeys(array $params)
     {
-        if (is_null($param)) {
-            $this->exception->addError(new \Egg\Http\Error(array(
-                'name'          => 'invalid_content',
-                'description'   => sprintf('Param "%s" is null', $column->name),
-            )));
+        $schema = $this->container['schema']->getData();
+        $table = $schema->tables[$this->resource];
+
+        foreach($params as $key => $value) {
+            try {
+                if (isset($table->columns[$key])) {
+                    $foreignKey = $table->columns[$key]->foreign_key;
+                    if (!is_null($foreignKey)) {
+                        $this->checkForeignKey($value, $foreignKey);
+                    }
+                }
+            }
+            catch (NotFoundException $exception) {
+                $this->exception->addError(new \Egg\Http\Error(array(
+                    'name'          => 'not_found',
+                    'description'   => $exception->getMessage(),
+                )));
+            }
+        }
+        if ($this->exception->hasErrors()) {
+            throw $this->exception;
         }
     }
 
-    protected function checkParamType($param, $column)
-    {
-        switch ($column->type) {
-            case 'integer':
-                return $this->checkParamTypeInteger($param, $column);
-            case 'string':
-                return $this->checkParamTypeString($param, $column);
-            case 'boolean':
-                return $this->checkParamTypeBool($param, $column);
-            case 'float':
-                return $this->checkParamTypeFloat($param, $column);
-        }
-    }
-
-    protected function checkParamTypeInteger($param, $column)
-    {
-        if (!is_numeric($param)) {
-            $this->exception->addError(new \Egg\Http\Error(array(
-                'name'          => 'invalid_content',
-                'description'   => sprintf('Param "%s" integer expected', $column->name),
-            )));
-        }
-        if ($column->unsigned) {
-            $this->checkParamUnsigned($param, $column);
-        }
-    }
-
-    protected function checkParamTypeString($param, $column)
-    {
-        if (!is_string($param)) {
-            $this->exception->addError(new \Egg\Http\Error(array(
-                'name'          => 'invalid_content',
-                'description'   => sprintf('Param "%s" string expected', $column->name),
-            )));
-        }
-        if ($column->max_length > 0) {
-            $this->checkParamMaxLength($param, $column);
-        }
-    }
-
-    protected function checkParamTypeBool($param, $column)
-    {
-        if (!is_bool($param)) {
-            $this->exception->addError(new \Egg\Http\Error(array(
-                'name'          => 'invalid_content',
-                'description'   => sprintf('Param "%s" boolean expected', $column->name),
-            )));
-        }
-    }
-
-    protected function checkParamTypeFloat($param, $column)
-    {
-        if (!is_numeric($param)) {
-            $this->exception->addError(new \Egg\Http\Error(array(
-                'name'          => 'invalid_content',
-                'description'   => sprintf('Param "%s" float expected', $column->name),
-            )));
-        }
-        if ($column->unsigned) {
-            $this->checkParamUnsigned($param, $column);
-        }
-    }
-
-    protected function checkParamUnsigned($param, $column)
-    {
-        if ($param < 0) {
-            $this->exception->addError(new \Egg\Http\Error(array(
-                'name'          => 'invalid_content',
-                'description'   => sprintf('Param "%s" unsigned expected', $column->name),
-            )));
-        }
-    }
-
-    protected function checkParamMaxLength($param, $column)
-    {
-        if (strlen($param) > $column->max_length) {
-            $this->exception->addError(new \Egg\Http\Error(array(
-                'name'          => 'invalid_content',
-                'description'   => sprintf('Param "%s" max length "%s"', $column->name, $column->max_length),
-            )));
-        }
-    }
-
-    protected function checkForeignKey($param, $foreignKey)
+    protected function checkForeignKey($value, $foreignKey)
     {
         $foreignColumn = $foreignKey->foreign_column;
-        $entity = $this->container['repository'][$foreignColumn->table]->selectOne([$foreignColumn->name => $param]);
+        $this->checkEntityExists($foreignColumn->table->name, [$foreignColumn->name => $value]);
+    }
+
+    protected function checkUniqueKeys(array $params, array $exceptParams = [])
+    {
+        $schema = $this->container['schema']->getData();
+        $table = $schema->tables[$this->resource];
+
+        foreach($table->unique_keys as $uniqueKey) {
+            try {
+                $keys = array_keys($uniqueKey->columns);
+                if (count(array_diff($keys, array_keys($params))) == 0) {
+                    $uniqueParams = [];
+                    foreach($keys as $key) {
+                        $uniqueParams[$key] = $params[$key];
+                    }
+                    $this->checkEntityUnique($this->resource, $uniqueParams, $exceptParams);
+                }
+            }
+            catch (NotUniqueException $exception) {
+                $this->exception->addError(new \Egg\Http\Error(array(
+                    'name'          => 'not_unique',
+                    'description'   => $exception->getMessage(),
+                )));
+            }
+        }
+        if ($this->exception->hasErrors()) {
+            throw $this->exception;
+        }
+    }
+
+    protected function checkParamNotNull($key, $value)
+    {
+        if (is_null($value)) {
+            throw new InvalidContentException(sprintf('Param "%s" is null', $key));
+        }
+    }
+
+    protected function checkParamType($key, $value, $type, array $options = [])
+    {
+        switch ($type) {
+            case 'integer':
+                $unsigned = isset($options['unsigned']) ? $options['unsigned'] : false;
+                return $this->checkParamTypeInteger($key, $value, $unsigned);
+            case 'string':
+                $maxLength = isset($options['maxLength']) ? $options['maxLength'] : false;
+                return $this->checkParamTypeString($key, $value, $maxLength);
+            case 'boolean':
+                return $this->checkParamTypeBool($key, $value);
+            case 'float':
+                $unsigned = isset($options['unsigned']) ? $options['unsigned'] : false;
+                return $this->checkParamTypeFloat($key, $value, $unsigned);
+        }
+    }
+
+    protected function checkParamTypeInteger($key, $value, $unsigned = false)
+    {
+        if (!is_numeric($value)) {
+            throw new InvalidContentException(sprintf('Param "%s" integer expected', $key));
+        }
+        if ($unsigned) {
+            $this->checkParamUnsigned($key, $value);
+        }
+    }
+
+    protected function checkParamTypeString($key, $value, $maxLength = null)
+    {
+        if (!is_string($value)) {
+            throw new InvalidContentException(sprintf('Param "%s" string expected', $key));
+        }
+        if (!is_null($maxLength)) {
+            $this->checkParamMaxLength($key, $value, $maxLength);
+        }
+    }
+
+    protected function checkParamTypeBool($key, $value)
+    {
+        if (!is_bool($value)) {
+            throw new InvalidContentException(sprintf('Param "%s" boolean expected', $key));
+        }
+    }
+
+    protected function checkParamTypeFloat($key, $value, $unsigned = false)
+    {
+        if (!is_numeric($value)) {
+            throw new InvalidContentException(sprintf('Param "%s" float expected', $key));
+        }
+        if ($unsigned) {
+            $this->checkParamUnsigned($key, $value);
+        }
+    }
+
+    protected function checkParamUnsigned($key, $value)
+    {
+        if (floatval($value) < 0) {
+            throw new InvalidContentException(sprintf('Param "%s" unsigned expected', $key));
+        }
+    }
+
+    protected function checkParamMaxLength($key, $value, $maxLength)
+    {
+        if (strlen($value) > $maxLength) {
+            throw new InvalidContentException(sprintf('Param "%s" max length "%s" expected', $key, $maxLength));
+        }
+    }
+
+    protected function checkEntityExists($resource, array $params)
+    {
+        $entity = $this->container['repository'][$resource]->selectOne($params);
         if (!$entity) {
-            $this->exception->addError(new \Egg\Http\Error(array(
-                'name'          => 'not_found',
-                'description'   => sprintf('"%s %s=%s" not found', $foreignColumn->table, $foreignColumn->name, $param),
-            )));
+            throw new NotFoundException(sprintf('"%s %s" not found', $resource, http_build_query($params, null, ',')));
         }
     }
 
-    protected function checkUnique($params)
+    protected function checkEntityUnique($resource, array $params, array $exceptParams)
     {
-        $entity = $this->container['repository'][$this->resource]->selectOne($params);
-        if ($entity) {
-            $this->exception->addError(new \Egg\Http\Error(array(
-                'name'          => 'unique_failure',
-                'description'   => sprintf('"%s %s" already exists', $this->resource, http_build_query($params, null, ',')),
-            )));
+        $entity = $this->container['repository'][$resource]->selectOne($params);
+        $raiseException = empty($exceptParams);
+        foreach($exceptParams as $key => $value) {
+            if (isset($entity->$key) AND $entity->$key != $value) {
+                $raiseException = true;
+                break;
+            }
         }
-    }
-
-    protected function requireParams(array $keys, array $params)
-    {
-        foreach($keys as $key) {
-            $this->requireParam($key, $params);
-        }
-    }
-
-    protected function requireParam($key, array $params)
-    {
-        if (!isset($params[$key])) {
-            $this->exception->addError(new \Egg\Http\Error(array(
-                'name'          => 'invalid_content',
-                'description'   => sprintf('Param "%s" is required', $key),
-            )));
+        if ($raiseException) {
+            throw new NotUniqueException(sprintf('"%s %s" not unique', $resource, http_build_query($params, null, ',')));
         }
     }
 }

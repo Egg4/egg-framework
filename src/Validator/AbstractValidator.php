@@ -3,6 +3,9 @@
 namespace Egg\Validator;
 
 use Egg\Interfaces\ValidatorInterface;
+use Egg\Exception\InvalidContent as InvalidContentException;
+use Egg\Exception\NotFound as NotFoundException;
+use Egg\Exception\NotUnique as NotUniqueException;
 
 abstract class AbstractValidator implements ValidatorInterface
 {
@@ -14,7 +17,27 @@ abstract class AbstractValidator implements ValidatorInterface
     {
         $this->exception = new \Egg\Http\Exception($this->container['response'], 400);
 
-        call_user_func_array([$this, $this->getMethod($action)], $arguments);
+        try {
+            call_user_func_array([$this, $this->getMethod($action)], $arguments);
+        }
+        catch (InvalidContentException $exception) {
+            $this->exception->addError(new \Egg\Http\Error(array(
+                'name'          => 'invalid_content',
+                'description'   => $exception->getMessage(),
+            )));
+        }
+        catch (NotFoundException $exception) {
+            $this->exception->addError(new \Egg\Http\Error(array(
+                'name'          => 'not_found',
+                'description'   => $exception->getMessage(),
+            )));
+        }
+        catch (NotUniqueException $exception) {
+            $this->exception->addError(new \Egg\Http\Error(array(
+                'name'          => 'not_unique',
+                'description'   => $exception->getMessage(),
+            )));
+        }
 
         if ($this->exception->hasErrors()) {
             throw $this->exception;
