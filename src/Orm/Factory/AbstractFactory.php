@@ -6,5 +6,12 @@ use Egg\Interfaces\FactoryInterface;
 
 abstract class AbstractFactory implements FactoryInterface
 {
-    protected $settings = [];
+    protected $settings;
+
+    public function __construct(array $settings = [])
+    {
+        $this->settings = array_merge([
+            'container'         => null,
+        ], $settings);
+    }
 }

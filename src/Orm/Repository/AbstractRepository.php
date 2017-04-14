@@ -6,7 +6,14 @@ use Egg\Interfaces\RepositoryInterface;
 
 abstract class AbstractRepository implements RepositoryInterface
 {
-    protected $settings = [];
+    protected $settings;
+
+    public function __construct(array $settings = [])
+    {
+        $this->settings = array_merge([
+            'container' => null,
+        ], $settings);
+    }
 
     public function __call($table, $args)
     {

@@ -9,6 +9,7 @@ class File extends AbstractSchema
     public function __construct(array $settings = [])
     {
         parent::__construct(array_merge([
+            'container'         => null,
             'filename'          => '',
             'parser'            => null,
         ], $settings));

@@ -6,8 +6,14 @@ use Egg\Interfaces\ControllerInterface;
 
 abstract class AbstractController implements ControllerInterface
 {
-    protected $settings = [];
-    protected $container;
+    protected $settings;
+
+    public function __construct(array $settings = [])
+    {
+        $this->settings = array_merge([
+            'container' => null,
+        ], $settings);
+    }
 
     public function execute($action, array $arguments = [])
     {

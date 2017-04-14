@@ -4,29 +4,42 @@ namespace Egg\Cache;
 
 class Memory extends AbstractCache
 {
-    protected $cache;
+    protected $cache = [];
 
     public function __construct(array $settings = [])
     {
-        $this->settings = array_merge([
+        parent::__construct(array_merge([
             'ttl'           => 3600,
             'namespace'     => '',
-        ], $settings);
-
-        $this->cache = new \Egg\Yolk\Shm\Cache();
+        ], $settings));
     }
 
     public function get($key)
     {
         $key = $this->buildKey($key);
-        return $this->cache->get($key);
+
+        if (!isset($this->cache[$key])) {
+            return false;
+        }
+        $content = unserialize($this->cache[$key]);
+        if (time() > $content['timeout']) {
+            unset($this->cache[$key]);
+            return false;
+        }
+
+        return $content['data'];
     }
 
     public function set($key, $data, $ttl = null)
     {
         $key = $this->buildKey($key);
         $ttl = $ttl === null ? $this->settings['ttl'] : $ttl;
-        $this->cache->set($key, $data, $ttl);
+
+        $content = [
+            'timeout'   => time() + $ttl,
+            'data'      => $data,
+        ];
+        $this->cache[$key] = serialize($content);
     }
 
     public function defer($key, $ttl = null)
@@ -41,11 +54,11 @@ class Memory extends AbstractCache
     public function delete($key)
     {
         $key = $this->buildKey($key);
-        $this->cache->delete($key);
+        unset($this->cache[$key]);
     }
 
     public function clear()
     {
-        $this->cache->clear();
+        $this->cache = [];
     }
 }

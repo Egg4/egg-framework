@@ -23,7 +23,7 @@ class CacheTest extends \Egg\Test
         ]);
 
         $authenticator = new CacheAuthenticator([
-            'cache' => $container['cache'],
+            'container' => $container,
         ]);
 
         $authentication = $authenticator->register($user);
@@ -40,7 +40,7 @@ class CacheTest extends \Egg\Test
         ]);
 
         $authenticator = new CacheAuthenticator([
-            'cache'     => $container['cache'],
+            'container' => $container,
             'namespace' => 'authentication',
         ]);
 
@@ -63,7 +63,7 @@ class CacheTest extends \Egg\Test
         ]);
 
         $authenticator = new CacheAuthenticator([
-            'cache'     => $container['cache'],
+            'container' => $container,
             'namespace' => '',
         ]);
 

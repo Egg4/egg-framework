@@ -4,15 +4,19 @@ namespace Egg\Controller;
 
 class Generic extends AbstractController
 {
+    protected $container;
+    protected $resource;
     protected $repository;
 
     public function __construct(array $settings = [])
     {
-        $this->settings = array_merge([
+        parent::__construct(array_merge([
+            'container' => null,
+            'resource'  => null,
+        ], $settings));
 
-        ], $settings);
-        $this->container = $settings['container'];
-        $this->resource = $settings['resource'];
+        $this->container = $this->settings['container'];
+        $this->resource = $this->settings['resource'];
         $this->repository = $this->container['repository'][$this->resource];
     }
 

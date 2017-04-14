@@ -8,14 +8,14 @@ class Memcache extends AbstractCache
 
     public function __construct(array $settings = [])
     {
-        $this->settings = array_merge([
+        parent::__construct(array_merge([
             'host'          => 'localhost',
             'port'          => 11211,
             'timeout'       => 1,
             'ttl'           => 3600,
             'namespace'     => '',
             'compress'      => false,
-        ], $settings);
+        ], $settings));
 
         $this->memcache = new \Memcache();
         $this->memcache->connect(

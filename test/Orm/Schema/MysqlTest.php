@@ -50,7 +50,11 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
 
     public function testShouldGetSchema()
     {
-        $mysqlSchema = new \Egg\Orm\Schema\Mysql(['database' => static::$database]);
+        $container = new \Egg\Container([
+            'database'  => static::$database,
+            'cache'     => new \Egg\Cache\Memory(),
+        ]);
+        $mysqlSchema = new \Egg\Orm\Schema\Mysql(['container' => $container]);
         $schema = $mysqlSchema->getData();
 
         $this->assertEquals('test', $schema->name);

@@ -4,17 +4,21 @@ namespace Egg\Orm\Schema;
 
 class Mysql extends AbstractSchema
 {
+    protected $container;
+    protected $database;
     protected $name;
 
     public function __construct(array $settings = [])
     {
         parent::__construct(array_merge([
-            'database'          => null,
+            'container'         => null,
             'entitySet.class'   => \Egg\Orm\EntitySet\Generic::class,
             'entity.class'      => \Egg\Orm\Entity\Generic::class,
         ], $settings));
 
-        $this->name = $this->settings['database']->getName();
+        $this->container = $this->settings['container'];
+        $this->database = $this->container['database'];
+        $this->name = $this->database->getName();
     }
 
     protected function getName()
@@ -30,7 +34,7 @@ class Mysql extends AbstractSchema
                         ORDER BY `table_name`
                        ", $this->name);
 
-        $statement = $this->settings['database']->execute($sql);
+        $statement = $this->database->execute($sql);
         $entities = $statement->fetchEntitySet($this->settings['entitySet.class'], $this->settings['entity.class']);
         $rows = $entities->toArray();
 
@@ -53,7 +57,7 @@ class Mysql extends AbstractSchema
                         ORDER BY `ordinal_position`
                        ", $this->name);
 
-        $statement = $this->settings['database']->execute($sql);
+        $statement = $this->database->execute($sql);
         $entities = $statement->fetchEntitySet($this->settings['entitySet.class'], $this->settings['entity.class']);
         $rows = $entities->toArray();
 
@@ -86,7 +90,7 @@ class Mysql extends AbstractSchema
                         AND tc.`constraint_type` = 'FOREIGN KEY'
                         ORDER BY kcu.`constraint_name`
                        ", $this->name);
-        $statement = $this->settings['database']->execute($sql);
+        $statement = $this->database->execute($sql);
         $entities = $statement->fetchEntitySet($this->settings['entitySet.class'], $this->settings['entity.class']);
         $rows = $entities->toArray();
 
@@ -115,7 +119,7 @@ class Mysql extends AbstractSchema
                         AND tc.`constraint_type` = 'UNIQUE'
                         ORDER BY kcu.`constraint_name`, kcu.`table_name`, kcu.`ordinal_position`
                        ", $this->name);
-        $statement = $this->settings['database']->execute($sql);
+        $statement = $this->database->execute($sql);
         $entities = $statement->fetchEntitySet($this->settings['entitySet.class'], $this->settings['entity.class']);
         $rows = $entities->toArray();
 

@@ -6,8 +6,14 @@ use Egg\Interfaces\AuthorizerInterface;
 
 abstract class AbstractAuthorizer implements AuthorizerInterface
 {
-    protected $settings = [];
-    protected $container;
+    protected $settings;
+
+    public function __construct(array $settings = [])
+    {
+        $this->settings = array_merge([
+            'container' => null,
+        ], $settings);
+    }
 
     public function authorize($action, array $arguments = [])
     {

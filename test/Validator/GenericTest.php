@@ -10,11 +10,18 @@ use \Egg\Parser\Json as JsonParser;
 
 class GenericTest extends \Egg\Test
 {
-    protected static $schema;
+    protected static $container;
 
     public static function setUpBeforeClass()
     {
-        static::$schema = new FileSchema([
+        static::$container = new \Egg\Container([
+            'cache'     => new \Egg\Cache\Memory(),
+            'request'   => \Egg\FactoryTest::createRequest(),
+            'response'  => \Egg\FactoryTest::createResponse(),
+        ]);
+
+        static::$container['schema'] = new FileSchema([
+            'container'         => static::$container,
             'filename'          => __DIR__ . '/schema.json',
             'parser'            => new JsonParser(),
         ]);
@@ -29,20 +36,16 @@ class GenericTest extends \Egg\Test
     {
         $id = 27;
 
-        $container = new Container([
-            'request'   => \Egg\FactoryTest::createRequest(),
-            'response'  => \Egg\FactoryTest::createResponse(),
-            'repository' => new Container([
-                'user'     => new ClosureRepository(function($action, $arguments) use ($id) {
-                    $this->assertEquals('selectOne', $action);
-                    $this->assertEquals(['id' => $id], $arguments[0]);
-                    return null;
-                }),
-            ]),
+        static::$container['repository'] = new Container([
+            'user'     => new ClosureRepository(function($action, $arguments) use ($id) {
+                $this->assertEquals('selectOne', $action);
+                $this->assertEquals(['id' => $id], $arguments[0]);
+                return null;
+            }),
         ]);
 
         $validator = new GenericValidator([
-            'container' => $container,
+            'container' => static::$container,
             'resource'  => 'user',
         ]);
 
@@ -61,14 +64,8 @@ class GenericTest extends \Egg\Test
 
     public function testCreateShouldRaiseExceptionInvalidContentParamRequired()
     {
-        $container = new Container([
-            'request'   => \Egg\FactoryTest::createRequest(),
-            'response'  => \Egg\FactoryTest::createResponse(),
-            'schema'    => static::$schema,
-        ]);
-
         $validator = new GenericValidator([
-            'container' => $container,
+            'container' => static::$container,
             'resource'  => 'house',
         ]);
 
@@ -87,14 +84,8 @@ class GenericTest extends \Egg\Test
 
     public function testCreateShouldRaiseExceptionInvalidContentParamNotNullable()
     {
-        $container = new Container([
-            'request'   => \Egg\FactoryTest::createRequest(),
-            'response'  => \Egg\FactoryTest::createResponse(),
-            'schema'    => static::$schema,
-        ]);
-
         $validator = new GenericValidator([
-            'container' => $container,
+            'container' => static::$container,
             'resource'  => 'house',
         ]);
 
@@ -116,14 +107,8 @@ class GenericTest extends \Egg\Test
 
     public function testCreateShouldRaiseExceptionInvalidContentParamIntegerExpected()
     {
-        $container = new Container([
-            'request'   => \Egg\FactoryTest::createRequest(),
-            'response'  => \Egg\FactoryTest::createResponse(),
-            'schema'    => static::$schema,
-        ]);
-
         $validator = new GenericValidator([
-            'container' => $container,
+            'container' => static::$container,
             'resource'  => 'house',
         ]);
 
@@ -145,14 +130,8 @@ class GenericTest extends \Egg\Test
 
     public function testCreateShouldRaiseExceptionInvalidContentParamUnsignedExpected()
     {
-        $container = new Container([
-            'request'   => \Egg\FactoryTest::createRequest(),
-            'response'  => \Egg\FactoryTest::createResponse(),
-            'schema'    => static::$schema,
-        ]);
-
         $validator = new GenericValidator([
-            'container' => $container,
+            'container' => static::$container,
             'resource'  => 'house',
         ]);
 
@@ -174,21 +153,16 @@ class GenericTest extends \Egg\Test
 
     public function testCreateShouldRaiseExceptionInvalidContentParamMaxLengthExpected()
     {
-        $container = new Container([
-            'request'   => \Egg\FactoryTest::createRequest(),
-            'response'  => \Egg\FactoryTest::createResponse(),
-            'repository' => new Container([
-                'user'     => new ClosureRepository(function($action, $arguments) {
-                    $this->assertEquals('selectOne', $action);
-                    $this->assertEquals(['id' => 1], $arguments[0]);
-                    return (object) ['id' => 1, 'login' => 'test'];
-                }),
-            ]),
-            'schema'    => static::$schema,
+        static::$container['repository'] = new Container([
+            'user'     => new ClosureRepository(function($action, $arguments) {
+                $this->assertEquals('selectOne', $action);
+                $this->assertEquals(['id' => 1], $arguments[0]);
+                return (object) ['id' => 1, 'login' => 'test'];
+            }),
         ]);
 
         $validator = new GenericValidator([
-            'container' => $container,
+            'container' => static::$container,
             'resource'  => 'house',
         ]);
 
@@ -210,21 +184,16 @@ class GenericTest extends \Egg\Test
 
     public function testCreateShouldRaiseExceptionForeignEntityNotFound()
     {
-        $container = new Container([
-            'request'   => \Egg\FactoryTest::createRequest(),
-            'response'  => \Egg\FactoryTest::createResponse(),
-            'repository' => new Container([
-                'user'     => new ClosureRepository(function($action, $arguments) {
-                    $this->assertEquals('selectOne', $action);
-                    $this->assertEquals(['id' => 1], $arguments[0]);
-                    return null;
-                }),
-            ]),
-            'schema'    => static::$schema,
+        static::$container['repository'] = new Container([
+            'user'     => new ClosureRepository(function($action, $arguments) {
+                $this->assertEquals('selectOne', $action);
+                $this->assertEquals(['id' => 1], $arguments[0]);
+                return null;
+            }),
         ]);
 
         $validator = new GenericValidator([
-            'container' => $container,
+            'container' => static::$container,
             'resource'  => 'house',
         ]);
 
@@ -246,21 +215,16 @@ class GenericTest extends \Egg\Test
 
     public function testCreateShouldRaiseExceptionNotUnique()
     {
-        $container = new Container([
-            'request'   => \Egg\FactoryTest::createRequest(),
-            'response'  => \Egg\FactoryTest::createResponse(),
-            'repository' => new Container([
-                'user'     => new ClosureRepository(function($action, $arguments) {
-                    $this->assertEquals('selectOne', $action);
-                    $this->assertEquals(['login' => 'login1'], $arguments[0]);
-                    return (object) ['id' => 1, 'login' => 'login1'];
-                }),
-            ]),
-            'schema'    => static::$schema,
+        static::$container['repository'] = new Container([
+            'user'     => new ClosureRepository(function($action, $arguments) {
+                $this->assertEquals('selectOne', $action);
+                $this->assertEquals(['login' => 'login1'], $arguments[0]);
+                return (object) ['id' => 1, 'login' => 'login1'];
+            }),
         ]);
 
         $validator = new GenericValidator([
-            'container' => $container,
+            'container' => static::$container,
             'resource'  => 'user',
         ]);
 

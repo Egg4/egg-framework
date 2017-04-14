@@ -8,14 +8,16 @@ use Egg\Exception\NotUnique as NotUniqueException;
 
 class Generic extends AbstractValidator
 {
+    protected $container;
     protected $resource;
 
     public function __construct(array $settings = [])
     {
-        $this->settings = array_merge([
+        parent::__construct(array_merge([
             'container' => null,
             'resource'  => null,
-        ], $settings);
+        ], $settings));
+
         $this->container = $this->settings['container'];
         $this->resource = $this->settings['resource'];
     }
@@ -116,11 +118,14 @@ class Generic extends AbstractValidator
 
         foreach($params as $key => $value) {
             try {
+                $method = 'validate' . ucfirst(\Egg\Yolk\String::camelize($key));
+                if (method_exists($this, $method)) {
+                    call_user_func([$this, $method], $value);
+                    continue;
+                }
                 if (isset($table->columns[$key])) {
                     $this->checkParam($key, $value, $table->columns[$key]);
-                }
-                else {
-                    $this->checkParam($key, $value);
+                    continue;
                 }
             }
             catch (InvalidContentException $exception) {
@@ -135,17 +140,15 @@ class Generic extends AbstractValidator
         }
     }
 
-    protected function checkParam($key, $value, $column = null)
+    protected function checkParam($key, $value, $column)
     {
-        if (!is_null($column)) {
-            if (!$column->nullable) {
-                $this->checkParamNotNull($key, $value);
-            }
-            $this->checkParamType($key, $value, $column->type, [
-                'unsigned' => $column->unsigned,
-                'maxLength' => $column->max_length,
-            ]);
+        if (!$column->nullable) {
+            $this->checkParamNotNull($key, $value);
         }
+        $this->checkParamType($key, $value, $column->type, [
+            'unsigned' => $column->unsigned,
+            'maxLength' => $column->max_length,
+        ]);
     }
 
     protected function checkForeignKeys(array $params)

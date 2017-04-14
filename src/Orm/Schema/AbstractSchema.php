@@ -6,14 +6,17 @@ use Egg\Interfaces\SchemaInterface;
 
 abstract class AbstractSchema implements SchemaInterface
 {
-    protected $settings = [];
+    protected $settings;
+    protected $cache;
 
     public function __construct(array $settings = [])
     {
         $this->settings = array_merge([
-            'cache'             => null,
+            'container'         => null,
             'namespace'         => 'schema',
         ], $settings);
+
+        $this->cache = $this->settings['container']['cache'];
     }
 
     protected abstract function getName();
@@ -26,16 +29,12 @@ abstract class AbstractSchema implements SchemaInterface
     {
         $name = $this->getName();
         $key = $this->buildCacheKey($name);
-        if ($this->settings['cache']) {
-            $data = $this->settings['cache']->get($key);
-            if ($data) return $data;
-        }
+        $data = $this->cache->get($key);
+        if ($data) return $data;
 
         $data = $this->buildSchema($name);
 
-        if ($this->settings['cache']) {
-            $this->settings['cache']->set($key, $data);
-        }
+        $this->cache->set($key, $data);
 
         return $data;
     }

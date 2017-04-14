@@ -4,20 +4,23 @@ namespace Egg\Authorizer;
 
 class Generic extends AbstractAuthorizer
 {
-    protected $settings;
-    protected $repository;
+    protected $container;
+    protected $resource;
 
     public function __construct(array $settings = [])
     {
-        $this->settings = array_merge([
+        parent::__construct(array_merge([
+            'container'     => null,
+            'resource'      => null,
             'actions' => [],
             'schema.self.resource' => '',
             'schema.self.attribute' => '',
             'schema.reference.resource' => '',
             'schema.reference.attribute' => '',
-        ], $settings);
-        $this->container = $settings['container'];
-        $this->resource = $settings['resource'];
+        ], $settings));
+
+        $this->container = $this->settings['container'];
+        $this->resource = $this->settings['resource'];
     }
 
     protected function canAccess($authentication, $right)

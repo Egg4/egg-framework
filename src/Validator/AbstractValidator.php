@@ -9,9 +9,15 @@ use Egg\Exception\NotUnique as NotUniqueException;
 
 abstract class AbstractValidator implements ValidatorInterface
 {
-    protected $settings = [];
-    protected $container;
+    protected $settings;
     protected $exception;
+
+    public function __construct(array $settings = [])
+    {
+        $this->settings = array_merge([
+            'container' => null,
+        ], $settings);
+    }
 
     public function validate($action, array $arguments = [])
     {

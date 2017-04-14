@@ -21,6 +21,7 @@ class MemoryTest extends \Egg\Test
         ];
 
         static::$cache->set('key1', $data);
+        static::$cache->set('key2', $data);
         $this->assertEquals($data, static::$cache->get('key1'));
     }
 

@@ -4,33 +4,46 @@ namespace Egg\Orm\Factory;
 
 class Generic extends AbstractFactory
 {
+    protected $container;
+    protected $resource;
+    protected $schema;
+
     public function __construct(array $settings = [])
     {
-        $this->settings = array_merge([
-            'schema'        => null,
-            'table'         => null,
-            'repositories'  => [],
-        ], $settings);
+        parent::__construct(array_merge([
+            'container' => null,
+            'resource'  => null,
+        ], $settings));
+
+        $this->container = $this->settings['container'];
+        $this->resource = $this->settings['resource'];
+        $this->schema = $this->container['schema'];
     }
 
     public function create(array $data = [])
     {
-        $schema = $this->settings['schema']->getData();
-        $columns = $schema->tables[$this->settings['table']]->columns;
-        $data = $this->generateAttributes($columns, $data);
+        $schema = $this->schema->getData();
+        $columns = $schema->tables[$this->resource]->columns;
+        $data = $this->createAttributes($columns, $data);
 
-        $repository = $this->settings['repositories'][$this->settings['table']];
+        $repository = $this->container['repository'][$this->resource];
         $id = $repository->insert($data);
         $entity = $repository->selectOneById($id);
 
         return $entity;
     }
 
-    protected function generateAttributes($columns, $data)
+    protected function createAttributes($columns, $data)
     {
         $attributes = [];
 
         foreach($columns as $name => $column) {
+            $method = 'create' . ucfirst(\Egg\Yolk\String::camelize($column->name));
+            if (method_exists($this, $method)) {
+                $value = isset($data[$name]) ? $data[$name] : null;
+                $attributes[$name] = call_user_func([$this, $method], $value);
+                continue;
+            }
             if (isset($data[$name])) {
                 $attributes[$name] = $data[$name];
                 continue;
@@ -38,21 +51,17 @@ class Generic extends AbstractFactory
             if ($column->auto_increment) {
                 continue;
             }
-            $attributes[$name] = $this->generateAttribute($column);
+            $attributes[$name] = $this->createAttribute($column);
         }
 
         return $attributes;
     }
 
-    protected function generateAttribute($column)
+    protected function createAttribute($column)
     {
         if ($column->foreign_key !== null) {
-            $table = $column->foreign_key->foreign_column->table->name;
-            $factory = new Generic([
-                'schema'        => $this->settings['schema'],
-                'table'         => $table,
-                'repositories'  => $this->settings['repositories'],
-            ]);
+            $resource = $column->foreign_key->foreign_column->table->name;
+            $factory = $this->container['factory'][$resource];
             $entity = $factory->create();
             return $entity->id;
         }

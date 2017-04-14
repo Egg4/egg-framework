@@ -23,19 +23,28 @@ class ClassName extends AbstractResolver
             $replacements[sprintf('{%s}', $key)] = ucfirst(\Egg\Yolk\String::camelize($value));
         }
 
+        $className = $this->buildClassName($this->settings['search'], $replacements);
+        if (!class_exists($className)) {
+            $className = $this->buildClassName($this->settings['fallback'], $replacements);
+        }
+
+        return $className;
+    }
+
+    protected function buildClassName($pattern, $replacements)
+    {
         $className = str_replace(
             array_keys($replacements),
             array_values($replacements),
-            $this->settings['search']
+            $pattern
         );
 
-        if (!class_exists($className)) {
-            $className = str_replace(
-                array_keys($replacements),
-                array_values($replacements),
-                $this->settings['fallback']
-            );
-        }
+        $parts = explode('\\', $className);
+        $parts = array_map(function($part) {
+            return ucfirst($part);
+        }, $parts);
+
+        $className = implode('\\', $parts);
 
         return $className;
     }
