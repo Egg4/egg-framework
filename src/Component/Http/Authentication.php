@@ -32,7 +32,7 @@ class Authentication extends AbstractComponent
             $tokens = $this->parseHeaderLine($headerLine);
             if (!empty($tokens)) {
                 $key = reset($tokens); // get the first key
-                $authentication = $this->container['authenticator']->authenticate($key);
+                $authentication = $this->container['authenticator']->get($key);
             }
             if (!$authentication) {
                 throw new \Egg\Http\Exception($response, 403, new \Egg\Http\Error(array(

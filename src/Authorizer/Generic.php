@@ -25,17 +25,19 @@ class Generic extends AbstractAuthorizer
 
     protected function canAccess($authentication, $right)
     {
-        list($field, $role) = explode('=', $right);
-        list($resource, $attribute) = explode('.', $field);
-
-        if ($authentication['resource'] != $resource) {
-            return false;
-        }
-        if ($role == '*') {
+        if ($right == 'own') {
             return true;
         }
 
-        return in_array($authentication[$attribute], explode(',', $role));
+        list($attribute, $value) = explode('=', $right);
+        if (!isset($authentication[$attribute])) {
+            return false;
+        }
+        if ($value == '*') {
+            return true;
+        }
+
+        return in_array($authentication[$attribute], explode(',', $value));
     }
 
     public function getAuthFilterParams()
@@ -51,9 +53,10 @@ class Generic extends AbstractAuthorizer
         $params = $referenceAuthorizer->getAuthFilterParams();
         $referenceRepository = $this->container['repository'][$referenceResource];
         $entities = $referenceRepository->selectAll($params);
-        $ids = array_map(function($entity) {
-            return $entity['id'];
-        }, $entities);
+        $ids = [];
+        foreach ($entities as $entity) {
+            $ids[] = $entity['id'];
+        }
 
         return [$selfAttribute => $ids];
     }
@@ -149,7 +152,11 @@ class Generic extends AbstractAuthorizer
 
     public function __call($action, $arguments)
     {
-        $this->analyse($action);
+        $params = isset($arguments[0]) ? $arguments[0] : [];
+        $filterParams = $this->analyse($action);
+        if (!empty($filterParams)) {
+            $this->checkParams($params, $filterParams);
+        }
     }
 
     protected function checkParams($params, $filterParams)

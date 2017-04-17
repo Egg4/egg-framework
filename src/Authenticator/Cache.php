@@ -24,25 +24,31 @@ class Cache extends AbstractAuthenticator
         return empty($this->settings['namespace']) ? $key : $this->settings['namespace'] . '.' . $key;
     }
 
-    public function register(array $data)
+    public function create(array $data)
     {
-        $id = \Egg\Yolk\Rand::alphanum($this->settings['key.length']);
-        $data['key'] = $id;
-        $key = $this->buildKey($id);
+        $key = \Egg\Yolk\Rand::alphanum($this->settings['key.length']);
+        $data['key'] = $key;
+        $key = $this->buildKey($key);
         $this->cache->set($key, $data);
 
         return $data;
     }
 
-    public function unregister($key)
-    {
-        $key = $this->buildKey($key);
-        $this->cache->delete($key);
-    }
-
-    public function authenticate($key)
+    public function get($key)
     {
         $key = $this->buildKey($key);
         return $this->cache->get($key);
+    }
+
+    public function set($key, array $data)
+    {
+        $key = $this->buildKey($key);
+        $this->cache->set($key, $data);
+    }
+
+    public function delete($key)
+    {
+        $key = $this->buildKey($key);
+        $this->cache->delete($key);
     }
 }

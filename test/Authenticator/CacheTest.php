@@ -8,7 +8,7 @@ use \Egg\Cache\Closure as ClosureCache;
 
 class CacheTest extends \Egg\Test
 {
-    public function testShouldRegister()
+    public function testShouldCreate()
     {
         $user = [
             'id' => 1,
@@ -26,11 +26,11 @@ class CacheTest extends \Egg\Test
             'container' => $container,
         ]);
 
-        $authentication = $authenticator->register($user);
+        $authentication = $authenticator->create($user);
         $this->assertEquals(32, strlen($authentication['key']));
     }
 
-    public function testShouldUnregister()
+    public function testShouldDelete()
     {
         $container = new Container([
             'cache'     => new ClosureCache(function($action, $arguments) {
@@ -44,10 +44,10 @@ class CacheTest extends \Egg\Test
             'namespace' => 'authentication',
         ]);
 
-        $authenticator->unregister('key');
+        $authenticator->delete('key');
     }
 
-    public function testShouldAuthenticate()
+    public function testShouldGet()
     {
         $user = [
             'id' => 1,
@@ -67,7 +67,7 @@ class CacheTest extends \Egg\Test
             'namespace' => '',
         ]);
 
-        $authentication = $authenticator->authenticate('key');
+        $authentication = $authenticator->get('key');
 
         $this->assertEquals($user['login'], $authentication['login']);
     }

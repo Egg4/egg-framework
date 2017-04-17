@@ -23,7 +23,7 @@ class GenericTest extends \Egg\Test
                 'schema.reference.attribute' => 'id',
             ],
             'room' => [
-                'actions' => ['*' => 'user.role=*'],
+                'actions' => ['*' => 'role=*'],
                 'schema.self.resource' => 'room',
                 'schema.self.attribute' => 'house_id',
                 'schema.reference.resource' => 'house',
@@ -77,7 +77,7 @@ class GenericTest extends \Egg\Test
                 'schema.reference.attribute' => 'id',
             ],
             'room' => [
-                'actions' => ['*' => 'user.role=*'],
+                'actions' => ['*' => 'role=*'],
                 'schema.self.resource' => 'room',
                 'schema.self.attribute' => 'house_id',
                 'schema.reference.resource' => 'house',

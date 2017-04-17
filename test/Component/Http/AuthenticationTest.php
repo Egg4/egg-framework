@@ -18,7 +18,7 @@ class AuthenticationTest extends \Egg\Test
         $container = new Container([
             'router' => \Egg\FactoryTest::createRouter(),
             'authenticator' => new ClosureAuthenticator(function($action, $arguments) use ($user) {
-                $this->assertEquals('authenticate', $action);
+                $this->assertEquals('get', $action);
                 $this->assertEquals('apikey', $arguments[0]);
                 return $user;
             }),

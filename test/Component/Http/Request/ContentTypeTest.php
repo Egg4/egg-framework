@@ -66,7 +66,9 @@ class ContentTypeTest extends \Egg\Test
 
     public function testShouldThrowExceptionWithUnparsableContentType()
     {
-        $request = \Egg\FactoryTest::createRequest([], ['Content-Type' => 'application/json;charset=utf8']);
+        $request = \Egg\FactoryTest::createRequest([], [
+            'Content-Type' => 'application/json;charset=utf8',
+        ], 'Malformed json body');
         $response = \Egg\FactoryTest::createResponse();
         $container = new Container([
             'parser' => new Container([

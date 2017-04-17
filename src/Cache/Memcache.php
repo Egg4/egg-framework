@@ -34,7 +34,7 @@ class Memcache extends AbstractCache
     public function set($key, $data, $ttl = null)
     {
         $key = $this->buildKey($key);
-        $compress = $this->settings['compressed'] AND !is_bool($data) AND !is_numeric($data);
+        $compress = $this->settings['compress'] AND !is_bool($data) AND !is_numeric($data);
         $flag = $compress ? MEMCACHE_COMPRESSED : false;
         $ttl = $ttl === null ? $this->settings['ttl'] : $ttl;
         $this->memcache->set($key, $data, $flag, $ttl);

@@ -11,7 +11,10 @@ class Request extends \Slim\Http\Request
         $headers = \Slim\Http\Headers::createFromEnvironment($environment);
         $cookies = \Slim\Http\Cookies::parseHeader($headers->get('Cookie', []));
         $serverParams = $environment->all();
-        $body = new Body(fopen('php://input', 'r'));
+        $stream = fopen('php://temp', 'w+');
+        stream_copy_to_stream(fopen('php://input', 'r'), $stream);
+        rewind($stream);
+        $body = new Body($stream);
         $uploadedFiles = \Slim\Http\UploadedFile::createFromEnvironment($environment);
 
         return new static($method, $uri, $headers, $cookies, $serverParams, $body, $uploadedFiles);

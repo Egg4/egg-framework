@@ -11,18 +11,23 @@ class Closure extends AbstractAuthenticator
         $this->closure = $closure;
     }
 
-    public function register(array $data)
+    public function create(array $data)
     {
-        return call_user_func_array($this->closure, ['register', [$data]]);
+        return call_user_func_array($this->closure, ['create', [$data]]);
     }
 
-    public function unregister($key)
+    public function get($key)
     {
-        return call_user_func_array($this->closure, ['unregister', [$key]]);
+        return call_user_func_array($this->closure, ['get', [$key]]);
     }
 
-    public function authenticate($key)
+    public function set($key, array $data)
     {
-        return call_user_func_array($this->closure, ['authenticate', [$key]]);
+        return call_user_func_array($this->closure, ['set', [$key, $data]]);
+    }
+
+    public function delete($key)
+    {
+        return call_user_func_array($this->closure, ['delete', [$key]]);
     }
 }

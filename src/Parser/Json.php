@@ -17,7 +17,7 @@ class Json extends AbstractParser
 
     public function parse($string)
     {
-        $array = json_decode($string, $this->settings['assoc']);
+        $data = json_decode($string, $this->settings['assoc']);
         switch(json_last_error()) {
             case JSON_ERROR_DEPTH:
                 throw new \Exception('Json error: Maximum stack depth exceeded');
@@ -26,7 +26,10 @@ class Json extends AbstractParser
             case JSON_ERROR_SYNTAX:
                 throw new \Exception('Json error: Syntax error');
         }
+        if (!is_array($data) AND !is_object($data)) {
+            throw new \Exception('Json error: Syntax error');
+        }
 
-        return $array;
+        return $data;
     }
 }
