@@ -55,7 +55,7 @@ class Generic extends AbstractAuthorizer
         $entities = $referenceRepository->selectAll($params);
         $ids = [];
         foreach ($entities as $entity) {
-            $ids[] = $entity['id'];
+            $ids[] = $entity->id;
         }
 
         return [$selfAttribute => $ids];

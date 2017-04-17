@@ -47,13 +47,13 @@ class GenericTest extends \Egg\Test
                 'house'     => new ClosureRepository(function($action, $arguments) {
                     $this->assertEquals('selectAll', $action);
                     $this->assertEquals(['user_id' => 27], $arguments[0]);
-                    return [['id' => 2], ['id' => 3]];
+                    return [(object) ['id' => 2], (object)['id' => 3]];
                 }),
                 'room'     => new ClosureRepository(function($action, $arguments) {
                     $this->assertEquals('selectOne', $action);
                     $this->assertEquals(4, $arguments[0]['id']);
                     $this->assertEquals([2, 3], $arguments[0]['house_id']);
-                    return ['id' => 4];
+                    return [(object)['id' => 4]];
                 }),
             ]),
         ]);
@@ -101,7 +101,7 @@ class GenericTest extends \Egg\Test
                 'house'     => new ClosureRepository(function($action, $arguments) {
                     $this->assertEquals('selectAll', $action);
                     $this->assertEquals(['user_id' => 27], $arguments[0]);
-                    return [['id' => 2], ['id' => 3]];
+                    return [(object)['id' => 2], (object)['id' => 3]];
                 }),
             ]),
         ]);
