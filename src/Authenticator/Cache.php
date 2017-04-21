@@ -12,6 +12,7 @@ class Cache extends AbstractAuthenticator
         parent::__construct(array_merge([
             'container'     => null,
             'namespace'     => 'authentication',
+            'timeout'       => 3600,
             'key.length'    => 32,
         ], $settings));
 
@@ -29,7 +30,7 @@ class Cache extends AbstractAuthenticator
         $key = \Egg\Yolk\Rand::alphanum($this->settings['key.length']);
         $data['key'] = $key;
         $key = $this->buildKey($key);
-        $this->cache->set($key, $data);
+        $this->cache->set($key, $data, $this->settings['timeout']);
 
         return $data;
     }
@@ -37,13 +38,18 @@ class Cache extends AbstractAuthenticator
     public function get($key)
     {
         $key = $this->buildKey($key);
-        return $this->cache->get($key);
+        $data = $this->cache->get($key);
+        if ($data) {
+            $this->cache->defer($key, $this->settings['timeout']);
+        }
+
+        return $data;
     }
 
     public function set($key, array $data)
     {
         $key = $this->buildKey($key);
-        $this->cache->set($key, $data);
+        $this->cache->set($key, $data, $this->settings['timeout']);
     }
 
     public function delete($key)
