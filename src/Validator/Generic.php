@@ -290,14 +290,14 @@ class Generic extends AbstractValidator
     {
         $entity = $this->container['repository'][$resource]->selectOne($params);
         if (!$entity) {
-            throw new NotFoundException(sprintf('"%s %s" not found', $resource, http_build_query($params, null, ',')));
+            throw new NotFoundException(sprintf('"%s %s" not found', $resource, http_build_query($params, null, ', ')));
         }
     }
 
     protected function checkEntityUnique($resource, array $params, array $exceptParams)
     {
         $entity = $this->container['repository'][$resource]->selectOne($params);
-        $raiseException = empty($exceptParams);
+        $raiseException = ($entity AND empty($exceptParams));
         foreach($exceptParams as $key => $value) {
             if (isset($entity->$key) AND $entity->$key != $value) {
                 $raiseException = true;
@@ -305,7 +305,7 @@ class Generic extends AbstractValidator
             }
         }
         if ($raiseException) {
-            throw new NotUniqueException(sprintf('"%s %s" not unique', $resource, http_build_query($params, null, ',')));
+            throw new NotUniqueException(sprintf('"%s %s" not unique', $resource, http_build_query($params, null, ', ')));
         }
     }
 }
