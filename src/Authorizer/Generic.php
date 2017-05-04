@@ -156,6 +156,7 @@ class Generic extends AbstractAuthorizer
         $filterParams = $this->analyse($action);
         if (!empty($filterParams)) {
             $this->checkParams($params, $filterParams);
+            $this->checkEntityExists(array_merge($params, $filterParams));
         }
     }
 

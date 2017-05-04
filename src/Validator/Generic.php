@@ -69,7 +69,7 @@ class Generic extends AbstractValidator
 
     public function __call($action, $arguments)
     {
-        throw new \Exception(sprintf('Create a custom validator for "%s" "%s"', $this->resource, $action));
+        throw new \Exception(sprintf('Custom validator "%s"::"%s" not found', $this->resource, $action));
     }
 
     protected function requireParams(array $requiredKeys, array $params)
