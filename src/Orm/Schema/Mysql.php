@@ -144,6 +144,7 @@ class Mysql extends AbstractSchema
             case 'text':    return 'string';
             case 'tinyint': return 'boolean';
             case 'float':   return 'float';
+            case 'date':    return 'date';
             default:        return $type;
         }
     }

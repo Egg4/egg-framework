@@ -56,8 +56,16 @@ class CacheTest extends \Egg\Test
 
         $container = new Container([
             'cache'     => new ClosureCache(function($action, $arguments) use ($user) {
-                $this->assertEquals('get', $action);
-                $this->assertEquals('key', $arguments[0]);
+                static $i = 0;
+                if ($i == 0) {
+                    $this->assertEquals('get', $action);
+                    $this->assertEquals('key', $arguments[0]);
+                }
+                else {
+                    $this->assertEquals('defer', $action);
+                    $this->assertEquals('key', $arguments[0]);
+                }
+                $i++;
                 return $user;
             }),
         ]);

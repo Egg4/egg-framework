@@ -145,10 +145,12 @@ class Generic extends AbstractValidator
         if (!$column->nullable) {
             $this->checkParamNotNull($key, $value);
         }
-        $this->checkParamType($key, $value, $column->type, [
-            'unsigned' => $column->unsigned,
-            'maxLength' => $column->max_length,
-        ]);
+        if (!is_null($value)) {
+            $this->checkParamType($key, $value, $column->type, [
+                'unsigned' => $column->unsigned,
+                'maxLength' => $column->max_length,
+            ]);
+        }
     }
 
     protected function checkForeignKeys(array $params)
@@ -232,6 +234,8 @@ class Generic extends AbstractValidator
             case 'float':
                 $unsigned = isset($options['unsigned']) ? $options['unsigned'] : false;
                 return $this->checkParamTypeFloat($key, $value, $unsigned);
+            case 'date':
+                return $this->checkParamTypeDate($key, $value);
         }
     }
 
@@ -269,6 +273,13 @@ class Generic extends AbstractValidator
         }
         if ($unsigned) {
             $this->checkParamUnsigned($key, $value);
+        }
+    }
+
+    protected function checkParamTypeDate($key, $value)
+    {
+        if (!preg_match('/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/', $value)) {
+            throw new InvalidContentException(sprintf('Param "%s" format yyyy-mm-dd expected', $key));
         }
     }
 
