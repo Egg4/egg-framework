@@ -29,15 +29,16 @@ class Generic extends AbstractAuthorizer
             return true;
         }
 
-        list($attribute, $value) = explode('=', $right);
-        if (!isset($authentication[$attribute])) {
+        list($data, $value) = explode('=', $right);
+        list($resource, $attribute) = explode('.', $data);
+        if (!isset($authentication[$resource][$attribute])) {
             return false;
         }
         if ($value == '*') {
             return true;
         }
 
-        return in_array($authentication[$attribute], explode(',', $value));
+        return in_array($authentication[$resource][$attribute], explode(',', $value));
     }
 
     public function getAuthFilterParams()
@@ -46,8 +47,8 @@ class Generic extends AbstractAuthorizer
         $referenceResource = $this->settings['schema.reference.resource'];
         $referenceAttribute = $this->settings['schema.reference.attribute'];
         $authentication = $this->container['request']->getAttribute('authentication');
-        if ($authentication['resource'] == $referenceResource) {
-            return [$selfAttribute => $authentication[$referenceAttribute]];
+        if (isset($authentication[$referenceResource][$referenceAttribute])) {
+            return [$selfAttribute => $authentication[$referenceResource][$referenceAttribute]];
         }
         $referenceAuthorizer = $this->container['authorizer'][$referenceResource];
         $params = $referenceAuthorizer->getAuthFilterParams();
