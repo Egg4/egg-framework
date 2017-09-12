@@ -111,8 +111,9 @@ abstract class AbstractDatabase implements DatabaseInterface
         $items = [];
         foreach ($params as $key => $value) {
             if (is_null($value)) {
-                $items[] = sprintf('%s IS NULL',
-                    $this->escapeIdentifier($key)
+                $items[] = sprintf('%s IS %s',
+                    $this->escapeIdentifier($key),
+                    $this->settings['paramPlaceholder']
                 );
             }
             elseif (is_array($value)) {
