@@ -162,7 +162,7 @@ class Generic extends AbstractValidator
             try {
                 if (isset($table->columns[$key])) {
                     $foreignKey = $table->columns[$key]->foreign_key;
-                    if (!is_null($foreignKey)) {
+                    if (!is_null($foreignKey) AND !is_null($value)) {
                         $this->checkForeignKey($value, $foreignKey);
                     }
                 }
