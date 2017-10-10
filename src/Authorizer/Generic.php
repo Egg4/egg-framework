@@ -74,7 +74,7 @@ class Generic extends AbstractAuthorizer
         if ($right == 'deny') {
             throw new \Egg\Http\Exception($this->container['response'], 403, new \Egg\Http\Error(array(
                 'name'          => 'not_allowed',
-                'description'   => 'Access denied',
+                'description'   => sprintf('"%s %s" access denied', $this->resource, $action),
             )));
         }
         if ($right == 'allow') {
@@ -92,7 +92,7 @@ class Generic extends AbstractAuthorizer
         if (!$this->canAccess($authentication, $right)) {
             throw new \Egg\Http\Exception($this->container['response'], 403, new \Egg\Http\Error(array(
                 'name'          => 'not_allowed',
-                'description'   => 'Access denied',
+                'description'   => sprintf('"%s %s" access denied', $this->resource, $action),
             )));
         }
 

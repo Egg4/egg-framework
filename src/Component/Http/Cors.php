@@ -81,6 +81,7 @@ class Cors extends AbstractComponent
                     }
                     $response = $response->withHeader($header, $value);
                 }
+                $this->container['response'] = $response;
                 return $next($request, $response);
         }
     }
