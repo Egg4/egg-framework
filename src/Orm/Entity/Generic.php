@@ -4,37 +4,37 @@ namespace Egg\Orm\Entity;
 
 class Generic extends AbstractEntity
 {
-    protected $data;
+    protected $_data;
 
     public function get($key)
     {
         if (!$this->has($key)) throw new \Exception(sprintf('Key "%s" not set', $key));
 
-        return $this->data[$key];
+        return $this->_data[$key];
     }
 
     public function set($key, $value)
     {
-        $this->data[$key] = $value;
+        $this->_data[$key] = $value;
     }
 
     public function has($key)
     {
-        return isset($this->data[$key]);
+        return isset($this->_data[$key]);
     }
 
     public function detach($key)
     {
-        unset($this->data[$key]);
+        unset($this->_data[$key]);
     }
 
     public function hydrate(array $data)
     {
-        $this->data = $data;
+        $this->_data = $data;
     }
 
     public function toArray()
     {
-        return $this->data;
+        return $this->_data;
     }
 }
