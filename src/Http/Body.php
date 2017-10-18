@@ -12,6 +12,9 @@ class Body extends \Slim\Http\Body
     }
 
     public function getContent() {
+        if (is_null($this->content)) {
+            $this->content = $this->getContents();
+        }
         return $this->content;
     }
 

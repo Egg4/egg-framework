@@ -37,7 +37,7 @@ class ContentType extends AbstractComponent
         try {
             $body = $request->getBody();
             $body->rewind();
-            $string = $body->getContents();
+            $string = $body->getContent();
             $content = empty($string) ? [] : $parser->parse($string);
             $body->setContent($content);
         }
