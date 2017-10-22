@@ -22,11 +22,8 @@ class ContentEncoding extends AbstractComponent
 
     public function run(Request $request, Response $response, Component $next)
     {
-        $contentEncoding = false;
         if ($request->hasHeader('Content-Encoding')) {
-            $contentEncoding = $this->getContentEncoding($request);
-        }
-        if ($contentEncoding) {
+            $contentEncoding = $request->getHeaderLine('Content-Encoding');
             if (!in_array($contentEncoding, $this->settings['media.encodings'])) {
                 throw new \Egg\Http\Exception($response, 415, new \Egg\Http\Error(array(
                     'name'          => 'unsupported_content_encoding',
@@ -53,12 +50,5 @@ class ContentEncoding extends AbstractComponent
         $response = $next($request, $response);
 
         return $response;
-    }
-
-    protected function getContentEncoding(Request $request)
-    {
-        $result = $request->getHeader('Content-Encoding');
-
-        return $result ? $result[0] : null;
     }
 }
