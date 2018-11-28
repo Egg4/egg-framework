@@ -51,6 +51,9 @@ class Generic extends AbstractFactory
             if ($column->auto_increment) {
                 continue;
             }
+            if ($column->nullable) {
+                continue;
+            }
             $attributes[$name] = $this->createAttribute($column);
         }
 
