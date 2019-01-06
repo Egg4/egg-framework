@@ -23,7 +23,7 @@ class Xml extends AbstractParser
 
     protected function xmlToArray($simpleXMLElement)
     {
-        $array = array();
+        $array = [];
         foreach ($simpleXMLElement->children() as $node) {
             if(count($node->children()) == 0) {
                 $array[$node->getName()] = strval($node);

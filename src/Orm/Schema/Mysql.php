@@ -138,14 +138,25 @@ class Mysql extends AbstractSchema
     protected function normalizeColumnType($type)
     {
         switch ($type) {
-            case 'int':     return 'integer';
-            case 'char':    return 'string';
-            case 'varchar': return 'string';
-            case 'text':    return 'string';
-            case 'tinyint': return 'boolean';
-            case 'float':   return 'float';
-            case 'date':    return 'date';
-            default:        return $type;
+            case 'int':
+            case 'bigint':
+            case 'smallint':
+            case 'mediumint':
+                return 'integer';
+            case 'char':
+            case 'varchar':
+            case 'text':
+                return 'string';
+            case 'tinyint':
+                return 'boolean';
+            case 'decimal':
+            case 'double':
+            case 'float':
+                return 'float';
+            case 'date':
+                return 'date';
+            default:
+                return $type;
         }
     }
 }

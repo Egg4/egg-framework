@@ -18,7 +18,7 @@ abstract class AbstractSerializer implements SerializerInterface
 
     protected function serializeSet($input)
     {
-        $array = array();
+        $array = [];
         foreach ($input as $item) {
             $array[] = $this->toArray($item);
         }

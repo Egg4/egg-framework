@@ -27,8 +27,8 @@ abstract class AbstractDatabase implements DatabaseInterface
 
     public function prepareInsert($table, array $data)
     {
-        $fields = array();
-        $values = array();
+        $fields = [];
+        $values = [];
         foreach ($data as $key => $value) {
             $fields[] = $this->escapeIdentifier($key);
             $values[] = $this->settings['paramPlaceholder'];
@@ -81,6 +81,9 @@ abstract class AbstractDatabase implements DatabaseInterface
                 }
                 elseif (strpos($value, $this->settings['wildcard']) !== false) {
                     $params[] = str_replace($this->settings['wildcard'], '%', $value);
+                }
+                elseif (is_bool($value)) {
+                    $params[] = (int) $value;
                 }
                 else {
                     $params[] = $value;
@@ -151,7 +154,7 @@ abstract class AbstractDatabase implements DatabaseInterface
     {
         if (count($params) == 0) return '';
 
-        $items = array();
+        $items = [];
         foreach ($params as $key => $value) {
             $items[] = sprintf('%s %s',
                 $this->escapeIdentifier($key),
@@ -166,7 +169,7 @@ abstract class AbstractDatabase implements DatabaseInterface
     {
         if (count($params) == 0) return '';
 
-        $items = array();
+        $items = [];
         if (isset($params['offset'])) $items[] = intval($params['offset']);
         if (isset($params['limit']))  $items[] = intval($params['limit']);
         if (!isset($params['limit'])) throw new \Exception('Key "limit" not set');

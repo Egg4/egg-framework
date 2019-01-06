@@ -6,7 +6,7 @@ class Set extends \ArrayObject
 {
     public function indexBy($key, $unique = true)
     {
-        $data = array();
+        $data = [];
         foreach ($this as $item) {
             if ($unique) {
                 $data[$item->$key] = $item;
