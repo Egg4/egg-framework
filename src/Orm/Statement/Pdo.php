@@ -85,6 +85,7 @@ class Pdo extends AbstractStatement
             case 'STRING':
             case 'VAR_STRING':
                 return strval($value);
+            case 'NEWDECIMAL':
             case 'DOUBLE':
             case 'FLOAT':
                 return floatval($value);
