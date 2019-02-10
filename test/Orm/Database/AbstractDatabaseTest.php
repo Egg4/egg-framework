@@ -73,12 +73,13 @@ class AbstractDatabaseTest extends \PHPUnit\Framework\TestCase
             'login'     => 'login',
             'password'  => '%WILDCARD%password%WILDCARD%',
             'null'      => null,
+            'bool'      => true,
         ];
         $database = new ClosureDatabase(function() {});
 
         $params = $database->prepareParams($data);
 
-        $this->assertEquals([27, 32, 'login', '%password%', null], $params);
+        $this->assertEquals([27, 32, 'login', '%password%', null, 1], $params);
     }
 
     public function testShouldPrepareWhereIsNull()
@@ -90,7 +91,7 @@ class AbstractDatabaseTest extends \PHPUnit\Framework\TestCase
 
         $sql = $database->prepareSelect('users', $where);
 
-        $this->assertEquals('SELECT * FROM `users` WHERE `login` IS NULL;', $sql);
+        $this->assertEquals('SELECT * FROM `users` WHERE `login` IS ?;', $sql);
     }
 
     public function testShouldPrepareWhereIn()

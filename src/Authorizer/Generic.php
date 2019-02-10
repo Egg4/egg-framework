@@ -12,91 +12,15 @@ class Generic extends AbstractAuthorizer
         parent::__construct(array_merge([
             'container'     => null,
             'resource'      => null,
-            'actions' => [],
-            'schema.self.resource' => '',
-            'schema.self.attribute' => '',
-            'schema.reference.resource' => '',
-            'schema.reference.attribute' => '',
         ], $settings));
 
         $this->container = $this->settings['container'];
         $this->resource = $this->settings['resource'];
     }
 
-    protected function canAccess($authentication, $right)
-    {
-        if ($right == 'own') {
-            return true;
-        }
-
-        list($data, $value) = explode('=', $right);
-        list($resource, $attribute) = explode('.', $data);
-        if (!isset($authentication[$resource][$attribute])) {
-            return false;
-        }
-        if ($value == '*') {
-            return true;
-        }
-
-        return in_array($authentication[$resource][$attribute], explode(',', $value));
-    }
-
-    public function getAuthFilterParams()
-    {
-        $selfAttribute = $this->settings['schema.self.attribute'];
-        $referenceResource = $this->settings['schema.reference.resource'];
-        $referenceAttribute = $this->settings['schema.reference.attribute'];
-        $authentication = $this->container['request']->getAttribute('authentication');
-        if (isset($authentication[$referenceResource][$referenceAttribute])) {
-            return [$selfAttribute => $authentication[$referenceResource][$referenceAttribute]];
-        }
-        $referenceAuthorizer = $this->container['authorizer'][$referenceResource];
-        $params = $referenceAuthorizer->getAuthFilterParams();
-        $referenceRepository = $this->container['repository'][$referenceResource];
-        $entities = $referenceRepository->selectAll($params);
-        $ids = [];
-        foreach ($entities as $entity) {
-            $ids[] = $entity->id;
-        }
-
-        return [$selfAttribute => $ids];
-    }
-
     protected function analyse($action)
     {
-        $right = 'deny';
-        if (isset($this->settings['actions']['*'])) {
-            $right = $this->settings['actions']['*'];
-        }
-        if (isset($this->settings['actions'][$action])) {
-            $right = $this->settings['actions'][$action];
-        }
-        if ($right == 'deny') {
-            throw new \Egg\Http\Exception($this->container['response'], 403, new \Egg\Http\Error(array(
-                'name'          => 'not_allowed',
-                'description'   => sprintf('"%s %s" access denied', $this->resource, $action),
-            )));
-        }
-        if ($right == 'allow') {
-            return [];
-        }
-
-        $authentication = $this->container['request']->getAttribute('authentication');
-        if (!$authentication) {
-            throw new \Egg\Http\Exception($this->container['response'], 403, new \Egg\Http\Error(array(
-                'name'          => 'authentication_required',
-                'description'   => 'Authentication is required',
-            )));
-        }
-
-        if (!$this->canAccess($authentication, $right)) {
-            throw new \Egg\Http\Exception($this->container['response'], 403, new \Egg\Http\Error(array(
-                'name'          => 'not_allowed',
-                'description'   => sprintf('"%s %s" access denied', $this->resource, $action),
-            )));
-        }
-
-        return $this->getAuthFilterParams();
+        return [];
     }
 
     public function select(array $filterParams, array $sortParams, array $rangeParams)
