@@ -11,7 +11,7 @@ abstract class AbstractAuthenticator implements AuthenticatorInterface
     public function __construct(array $settings = [])
     {
         $this->settings = array_merge([
-            'container' => null,
+            'timeout'       => 3600,
         ], $settings);
     }
 }

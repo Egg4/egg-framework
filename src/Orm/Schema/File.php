@@ -9,10 +9,13 @@ class File extends AbstractSchema
     public function __construct(array $settings = [])
     {
         parent::__construct(array_merge([
-            'container'         => null,
             'filename'          => '',
             'parser'            => null,
         ], $settings));
+
+        if (is_null($this->settings['parser'])) {
+            throw new \Exception('Parser not set');
+        }
 
         $data = $this->settings['parser']->parse(file_get_contents($this->settings['filename']));
         $this->data = array_merge([

@@ -12,11 +12,15 @@ abstract class AbstractSchema implements SchemaInterface
     public function __construct(array $settings = [])
     {
         $this->settings = array_merge([
-            'container'         => null,
-            'namespace'         => 'schema',
+            'cache'         => null,
+            'namespace'     => 'schema',
         ], $settings);
 
-        $this->cache = $this->settings['container']['cache'];
+        if (is_null($this->settings['cache'])) {
+            throw new \Exception('Cache not set');
+        }
+
+        $this->cache = $this->settings['cache'];
     }
 
     protected abstract function getName();

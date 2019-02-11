@@ -2,81 +2,36 @@
 
 namespace Egg\Authenticator;
 
-use \Egg\Container;
 use \Egg\Authenticator\Cache as CacheAuthenticator;
-use \Egg\Cache\Closure as ClosureCache;
+use \Egg\Cache\Memory as MemoryCache;
 
 class CacheTest extends \Egg\Test
 {
-    public function testShouldCreate()
+    protected static $authenticator;
+
+    public static function setUpBeforeClass()
+    {
+        static::$authenticator = new CacheAuthenticator([
+            'cache' => new MemoryCache(),
+        ]);
+    }
+
+    public function testSuccess()
     {
         $user = [
             'id' => 1,
             'login' => 'login@email.com',
         ];
 
-        $container = new Container([
-            'cache'     => new ClosureCache(function($action, $arguments) use ($user) {
-                $this->assertEquals('set', $action);
-                $this->assertEquals($user['login'], $arguments[1]['login']);
-            }),
-        ]);
-
-        $authenticator = new CacheAuthenticator([
-            'container' => $container,
-        ]);
-
-        $authentication = $authenticator->create($user);
-        $this->assertEquals(32, strlen($authentication['key']));
+        $key = static::$authenticator->create($user);
+        $this->assertEquals(32, strlen($key));
+        $this->assertEquals($user, static::$authenticator->get($key));
     }
 
-    public function testShouldDelete()
+    public function testFailure()
     {
-        $container = new Container([
-            'cache'     => new ClosureCache(function($action, $arguments) {
-                $this->assertEquals('delete', $action);
-                $this->assertEquals('authentication.key', $arguments[0]);
-            }),
-        ]);
+        $key = 'fake_key';
 
-        $authenticator = new CacheAuthenticator([
-            'container' => $container,
-            'namespace' => 'authentication',
-        ]);
-
-        $authenticator->delete('key');
-    }
-
-    public function testShouldGet()
-    {
-        $user = [
-            'id' => 1,
-            'login' => 'login@email.com',
-        ];
-
-        $container = new Container([
-            'cache'     => new ClosureCache(function($action, $arguments) use ($user) {
-                static $i = 0;
-                if ($i == 0) {
-                    $this->assertEquals('get', $action);
-                    $this->assertEquals('key', $arguments[0]);
-                }
-                else {
-                    $this->assertEquals('defer', $action);
-                    $this->assertEquals('key', $arguments[0]);
-                }
-                $i++;
-                return $user;
-            }),
-        ]);
-
-        $authenticator = new CacheAuthenticator([
-            'container' => $container,
-            'namespace' => '',
-        ]);
-
-        $authentication = $authenticator->get('key');
-
-        $this->assertEquals($user['login'], $authentication['login']);
+        $this->assertEquals(false, static::$authenticator->get($key));
     }
 }

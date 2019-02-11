@@ -4,20 +4,22 @@ namespace Egg\Orm\Schema;
 
 class Mysql extends AbstractSchema
 {
-    protected $container;
     protected $database;
     protected $name;
 
     public function __construct(array $settings = [])
     {
         parent::__construct(array_merge([
-            'container'         => null,
+            'database'          => null,
             'entitySet.class'   => \Egg\Orm\EntitySet\Generic::class,
             'entity.class'      => \Egg\Orm\Entity\Generic::class,
         ], $settings));
 
-        $this->container = $this->settings['container'];
-        $this->database = $this->container['database'];
+        if (is_null($this->settings['database'])) {
+            throw new \Exception('Database not set');
+        }
+
+        $this->database = $this->settings['database'];
         $this->name = $this->database->getName();
     }
 

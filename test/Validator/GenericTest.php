@@ -15,21 +15,15 @@ class GenericTest extends \Egg\Test
     public static function setUpBeforeClass()
     {
         static::$container = new \Egg\Container([
-            'cache'     => new \Egg\Cache\Memory(),
             'request'   => \Egg\FactoryTest::createRequest(),
             'response'  => \Egg\FactoryTest::createResponse(),
         ]);
 
         static::$container['schema'] = new FileSchema([
-            'container'         => static::$container,
+            'cache'             => new \Egg\Cache\Memory(),
             'filename'          => __DIR__ . '/schema.json',
             'parser'            => new JsonParser(),
         ]);
-    }
-
-    public static function tearDownAfterClass()
-    {
-
     }
 
     public function testReadShouldRaiseExceptionNotFound()

@@ -40,7 +40,10 @@ class GenericTest extends \PHPUnit\Framework\TestCase
         $database->execute($sql);
 
         static::$container['database'] = $database;
-        static::$container['schema'] = new \Egg\Orm\Schema\Mysql(['container' => static::$container]);
+        static::$container['schema'] = new \Egg\Orm\Schema\Mysql([
+            'database'      => static::$container['database'],
+            'cache'         => static::$container['cache'],
+        ]);
         static::$container['repository'] = [
             'users' => new \Egg\Orm\Repository\Generic([
                 'container' => static::$container,

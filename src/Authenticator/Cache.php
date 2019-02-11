@@ -4,20 +4,22 @@ namespace Egg\Authenticator;
 
 class Cache extends AbstractAuthenticator
 {
-    protected $container;
     protected $cache;
 
     public function __construct(array $settings = [])
     {
         parent::__construct(array_merge([
-            'container'     => null,
+            'cache'         => null,
             'namespace'     => 'authentication',
-            'timeout'       => 3600,
             'key.length'    => 32,
         ], $settings));
 
-        $this->container = $this->settings['container'];
-        $this->cache = $this->container['cache'];
+        if (is_null($this->settings['cache'])) {
+            throw new \Exception('Cache not set');
+        }
+        else {
+            $this->cache = $this->settings['cache'];
+        }
     }
 
     protected function buildKey($key)
@@ -28,11 +30,9 @@ class Cache extends AbstractAuthenticator
     public function create(array $data)
     {
         $key = \Egg\Yolk\Rand::alphanum($this->settings['key.length']);
-        $data['key'] = $key;
-        $key = $this->buildKey($key);
-        $this->cache->set($key, $data, $this->settings['timeout']);
+        $this->cache->set($this->buildKey($key), $data, $this->settings['timeout']);
 
-        return $data;
+        return $key;
     }
 
     public function get($key)
@@ -44,17 +44,5 @@ class Cache extends AbstractAuthenticator
         }
 
         return $data;
-    }
-
-    public function set($key, array $data)
-    {
-        $key = $this->buildKey($key);
-        $this->cache->set($key, $data, $this->settings['timeout']);
-    }
-
-    public function delete($key)
-    {
-        $key = $this->buildKey($key);
-        $this->cache->delete($key);
     }
 }
