@@ -66,7 +66,7 @@ class Authentication extends AbstractComponent
 
         $replacements = [];
         foreach ($matches[0] as $i => $key) {
-            $replacements[$key] = sprintf('(?P<%s>\w+)', $matches[1][$i]);
+            $replacements[$key] = sprintf('(?P<%s>\S+)', $matches[1][$i]);
         }
 
         return sprintf('/%s/', str_replace(

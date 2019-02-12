@@ -2,7 +2,7 @@
 
 namespace Egg\Yolk;
 
-abstract class String
+abstract class Inflector
 {
     public static function camelize($string)
     {

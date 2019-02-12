@@ -38,7 +38,7 @@ class Custom extends AbstractComponent
         if ($route->getName() == static::ACTION) {
             $resource = $request->getAttribute('resource');
             $custom = $route->getArgument(static::ACTION);
-            $action = \Egg\Yolk\String::camelize($custom);
+            $action = \Egg\Yolk\Inflector::camelize($custom);
             $params = $request->getBody()->getContent();
 
             $this->container['request'] = $request;

@@ -27,7 +27,7 @@ abstract class AbstractRepository implements RepositoryInterface
         foreach ($matches as $match) {
             if (strpos($table, $match) === 0) {
                 $method = substr($table, 0, strpos($table, 'By'));
-                $field = \Egg\Yolk\String::underscore(substr($table, strlen($match)));
+                $field = \Egg\Yolk\Inflector::underscore(substr($table, strlen($match)));
                 if (!isset($args[0])) {
                     throw new \Exception(sprintf('Argument 1 of "%s" expected', $table));
                 }

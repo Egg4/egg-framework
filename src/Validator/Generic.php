@@ -118,7 +118,7 @@ class Generic extends AbstractValidator
 
         foreach($params as $key => $value) {
             try {
-                $method = 'validate' . ucfirst(\Egg\Yolk\String::camelize($key));
+                $method = 'validate' . ucfirst(\Egg\Yolk\Inflector::camelize($key));
                 if (method_exists($this, $method)) {
                     call_user_func([$this, $method], $value);
                     continue;

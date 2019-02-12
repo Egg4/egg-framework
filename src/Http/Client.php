@@ -12,6 +12,11 @@ class Client
     public function __construct(Container $container, array $headers = [])
     {
         $this->container = $container;
+        $this->setHeaders($headers);
+    }
+
+    public function setHeaders(array $headers)
+    {
         $this->headers = $headers;
     }
 
@@ -23,6 +28,16 @@ class Client
     public function removeHeader($key)
     {
         unset($this->headers[$key]);
+    }
+
+    public function getHeaders()
+    {
+        return $this->headers;
+    }
+
+    public function getHeader($key)
+    {
+        return isset($this->headers[$key]) ? $this->headers[$key] : false;
     }
 
     protected function send($method, $uri, array $headers = [], $body = null)
@@ -37,7 +52,9 @@ class Client
         $content = $body->getContents();
 
         // Parse body
-        if ($this->container->has('parser') AND $this->response->hasHeader('Content-Type')) {
+        if (!empty($content)
+            AND $this->container->has('parser')
+            AND $this->response->hasHeader('Content-Type')) {
             $contentTypeLine = $this->response->getHeaderLine('Content-Type');
             if ($contentTypeLine) {
                 $contentTypeParts = preg_split('/\s*[;,]\s*/', $contentTypeLine);

@@ -28,32 +28,36 @@ class File extends AbstractCache
 
     public function get($key)
     {
-        @include $this->buildFilename($key);
-
-        if (isset($expiration) AND $expiration < time()) {
+        $filename = $this->buildFilename($key);
+        $content = @file_get_contents($filename);
+        if (!$content) {
             return false;
         }
+        $payload = unserialize($content);
+        if (isset($payload['header']['expiration'])) {
+            if ($payload['header']['expiration'] < time()) {
+                return false;
+            }
+        }
 
-        return isset($data) ? $data : false;
+        return isset($payload['body']) ? $payload['body'] : false;
     }
 
     public function set($key, $data, $ttl = null)
     {
-        $data = var_export($data, true);
+        $payload = [
+            'header'    => [],
+            'body'      => $data,
+        ];
 
-        // HHVM fails at __set_state, so just use object cast for now
-        $data = str_replace('stdClass::__set_state', '(object)', $data);
         $ttl = $ttl === null ? $this->settings['ttl'] : $ttl;
+        if ($ttl > 0) {
+            $payload['header']['expiration'] = time() + $ttl;
+        }
 
-        // Write to temp file first to ensure atomicity
         $filename = $this->buildFilename($key);
         $tmpFilename = sprintf('%s.%s.tmp', $filename, uniqid('', true));
-        if ($ttl === 0) {
-            $content = sprintf('<?php $data = %s;', $data);
-        }
-        else {
-            $content = sprintf('<?php $expiration = %d; $data = %s;', time() + $ttl, $data);
-        }
+        $content = serialize($payload);
         file_put_contents($tmpFilename, $content, LOCK_EX);
         rename($tmpFilename, $filename);
     }

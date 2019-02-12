@@ -38,7 +38,7 @@ class Generic extends AbstractFactory
         $attributes = [];
 
         foreach($columns as $name => $column) {
-            $method = 'create' . ucfirst(\Egg\Yolk\String::camelize($column->name));
+            $method = 'create' . ucfirst(\Egg\Yolk\Inflector::camelize($column->name));
             if (method_exists($this, $method)) {
                 $value = isset($data[$name]) ? $data[$name] : null;
                 $attributes[$name] = call_user_func([$this, $method], $value);

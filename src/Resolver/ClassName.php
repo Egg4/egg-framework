@@ -20,7 +20,7 @@ class ClassName extends AbstractResolver
 
         $replacements = [];
         foreach($params as $key => $value) {
-            $replacements[sprintf('{%s}', $key)] = ucfirst(\Egg\Yolk\String::camelize($value));
+            $replacements[sprintf('{%s}', $key)] = ucfirst(\Egg\Yolk\Inflector::camelize($value));
         }
 
         $className = $this->buildClassName($this->settings['search'], $replacements);

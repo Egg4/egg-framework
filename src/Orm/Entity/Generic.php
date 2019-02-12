@@ -20,7 +20,7 @@ class Generic extends AbstractEntity
 
     public function has($key)
     {
-        return isset($this->_data[$key]);
+        return array_key_exists($key, $this->_data);
     }
 
     public function detach($key)
