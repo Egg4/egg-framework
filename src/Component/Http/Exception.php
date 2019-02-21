@@ -45,7 +45,7 @@ class Exception extends AbstractComponent
                 $this->logException($this->container['logger'], $exception);
             }
             $response = $this->container['response'] ? $this->container['response'] : $response;
-            $this->buildExceptionResponse($response, $exception);
+            $response = $this->buildExceptionResponse($response, $exception);
         }
 
         return $response;
@@ -67,6 +67,8 @@ class Exception extends AbstractComponent
         ))]);
         $array = $this->settings['serializer']->serialize($errors);
         $response->getBody()->setContent($array);
+
+        return $response;
     }
 
     protected function logException($logger, $exception)
