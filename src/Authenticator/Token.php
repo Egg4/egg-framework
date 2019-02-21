@@ -25,7 +25,7 @@ class Token extends AbstractAuthenticator
 
     public function create(array $data, $timeout = null)
     {
-        $timeout = is_null($timeout) ? $this->settings['timeout'] : $timeout;
+        $timeout = intval(is_null($timeout) ? $this->settings['timeout'] : $timeout);
 
         $payload = [
             'header' => [

@@ -50,7 +50,7 @@ class File extends AbstractCache
             'body'      => $data,
         ];
 
-        $ttl = $ttl === null ? $this->settings['ttl'] : $ttl;
+        $ttl = intval(is_null($ttl) ? $this->settings['ttl'] : $ttl);
         if ($ttl > 0) {
             $payload['header']['expiration'] = time() + $ttl;
         }

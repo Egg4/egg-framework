@@ -33,7 +33,7 @@ class Memory extends AbstractCache
     public function set($key, $data, $ttl = null)
     {
         $key = $this->buildKey($key);
-        $ttl = $ttl === null ? $this->settings['ttl'] : $ttl;
+        $ttl = intval(is_null($ttl) ? $this->settings['ttl'] : $ttl);
 
         $content = [
             'timeout'   => time() + $ttl,
