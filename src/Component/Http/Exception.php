@@ -41,23 +41,46 @@ class Exception extends AbstractComponent
             if ($this->container['environment']['APP_DEBUG']) {
                 throw $exception;
             }
+            if (isset($this->container['logger'])) {
+                $this->logException($this->container['logger'], $exception);
+            }
             $response = $this->container['response'] ? $this->container['response'] : $response;
-            $response = $response->withStatus(500);
-            if ($this->container['environment']['APP_ENV'] == 'dev') {
-                $message = sprintf('%s in %s:%s', $exception->getMessage(), $exception->getFile(), $exception->getLine());
-            }
-            else {
-                $message = 'Oops! Something went wrong...';
-            }
-            $errors = new \Egg\Yolk\Set([new \Egg\Http\Error(array(
-                'name'        => 'server_error',
-                'description' => $message,
-                'uri'         => '',
-            ))]);
-            $array = $this->settings['serializer']->serialize($errors);
-            $response->getBody()->setContent($array);
+            $this->buildExceptionResponse($response, $exception);
         }
 
         return $response;
+    }
+
+    protected function buildExceptionResponse($response, $exception)
+    {
+        $response = $response->withStatus(500);
+        if ($this->container['environment']['APP_ENV'] == 'dev') {
+            $message = $this->buildExceptionMessage($exception);
+        }
+        else {
+            $message = 'Oops! Something went wrong...';
+        }
+        $errors = new \Egg\Yolk\Set([new \Egg\Http\Error(array(
+            'name'        => 'server_error',
+            'description' => $message,
+            'uri'         => '',
+        ))]);
+        $array = $this->settings['serializer']->serialize($errors);
+        $response->getBody()->setContent($array);
+    }
+
+    protected function logException($logger, $exception)
+    {
+        $message = $this->buildExceptionMessage($exception);
+        $logger->error($message);
+    }
+
+    protected function buildExceptionMessage($exception)
+    {
+        return sprintf('%s in %s:%s',
+            $exception->getMessage(),
+            $exception->getFile(),
+            $exception->getLine()
+        );
     }
 }
