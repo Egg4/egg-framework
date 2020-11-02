@@ -1,5 +1,5 @@
-.idea/
-Command Prompt.lnk
 vendor/
-desktop.ini
 commands.txt
+/.buildpath
+/.project
+/.settings/
