@@ -2,9 +2,10 @@
 
 namespace Egg\Component\Http\Request;
 
+use \PHPUnit\Framework\TestCase;
 use \Egg\Component\Http\Request\AcceptLanguage as AcceptLanguageComponent;
 
-class AcceptLanguageTest extends \Egg\Test
+class AcceptLanguageTest extends TestCase
 {
     public function testShouldSetResponseContentType()
     {
@@ -18,7 +19,7 @@ class AcceptLanguageTest extends \Egg\Test
         ]);
         $response = $component($request, $response);
 
-        $this->assertContains('fr', $response->getHeaderLine('Content-Language'));
+        $this->assertStringContainsString('fr', $response->getHeaderLine('Content-Language'));
     }
 
     public function testShouldThrowExceptionWithNotAcceptableContentType()

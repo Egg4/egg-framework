@@ -2,11 +2,12 @@
 
 namespace Egg\Serializer;
 
+use \PHPUnit\Framework\TestCase;
 use Egg\Orm\Entity\Generic as GenericEntity;
 use Egg\Orm\EntitySet\Generic as GenericEntitySet;
 use Egg\Serializer\Generic as GenericSerializer;
 
-class GenericTest extends \Egg\Test
+class GenericTest extends TestCase
 {
     public function testSerializeEntity()
     {

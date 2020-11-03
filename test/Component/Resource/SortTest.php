@@ -2,9 +2,10 @@
 
 namespace Egg\Component\Resource;
 
+use \PHPUnit\Framework\TestCase;
 use \Egg\Component\Resource\Sort as SortComponent;
 
-class SortTest extends \Egg\Test
+class SortTest extends TestCase
 {
     public function testShouldReturnSort()
     {

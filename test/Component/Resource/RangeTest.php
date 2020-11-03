@@ -2,9 +2,10 @@
 
 namespace Egg\Component\Resource;
 
+use \PHPUnit\Framework\TestCase;
 use \Egg\Component\Resource\Range as RangeComponent;
 
-class RangeTest extends \Egg\Test
+class RangeTest extends TestCase
 {
     public function testShouldReturnSort()
     {

@@ -2,15 +2,16 @@
 
 namespace Egg\Orm\Database;
 
+use \PHPUnit\Framework\TestCase;
 use Egg\FactoryTest;
 use Egg\Orm\EntitySet\Generic as EntitySet;
 use Egg\Orm\Entity\Generic as Entity;
 
-class PdoTest extends \PHPUnit\Framework\TestCase
+class PdoTest extends TestCase
 {
     protected static $database;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         static::$database = FactoryTest::createPdoDatabase();
         static::$database->beginTransaction();
@@ -23,7 +24,7 @@ class PdoTest extends \PHPUnit\Framework\TestCase
         static::$database->execute($sql);
     }
 
-    public static function tearDownAfterClass()
+    public static function tearDownAfterClass(): void
     {
         $sql = 'DROP TABLE IF EXISTS `users`;';
         static::$database->execute($sql);

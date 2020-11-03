@@ -2,13 +2,14 @@
 
 namespace Egg\Orm\Schema;
 
+use \PHPUnit\Framework\TestCase;
 use Egg\FactoryTest;
 
-class MysqlTest extends \PHPUnit\Framework\TestCase
+class MysqlTest extends TestCase
 {
     protected static $database;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         static::$database = FactoryTest::createPdoDatabase();
 
@@ -39,7 +40,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
         static::$database->execute($sql);
     }
 
-    public static function tearDownAfterClass()
+    public static function tearDownAfterClass(): void
     {
         $sql = 'DROP TABLE IF EXISTS `houses`;';
         static::$database->execute($sql);

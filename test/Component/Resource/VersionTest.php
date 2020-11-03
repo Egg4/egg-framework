@@ -2,10 +2,11 @@
 
 namespace Egg\Component\Resource;
 
+use \PHPUnit\Framework\TestCase;
 use \Egg\Container;
 use \Egg\Component\Resource\Version as VersionComponent;
 
-class VersionTest extends \Egg\Test
+class VersionTest extends TestCase
 {
     public function testShouldReturnVersion()
     {

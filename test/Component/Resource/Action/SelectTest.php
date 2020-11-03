@@ -2,6 +2,7 @@
 
 namespace Egg\Component\Resource\Action;
 
+use \PHPUnit\Framework\TestCase;
 use \Egg\Container;
 use \Egg\Component\Resource\Action\Select as SelectComponent;
 use \Egg\Authorizer\Closure as ClosureAuthorizer;
@@ -9,7 +10,7 @@ use \Egg\Validator\Closure as ClosureValidator;
 use \Egg\Controller\Closure as ClosureController;
 use \Egg\Serializer\Closure as ClosureSerializer;
 
-class SelectTest extends \Egg\Test
+class SelectTest extends TestCase
 {
     public function testShouldReturn200()
     {

@@ -2,7 +2,6 @@
 
 namespace Egg\Component\Http\Response;
 
-use Egg\Container;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Egg\Component\AbstractComponent;

@@ -2,11 +2,13 @@
 
 namespace Egg\Orm\Factory;
 
-class GenericTest extends \PHPUnit\Framework\TestCase
+use \PHPUnit\Framework\TestCase;
+
+class GenericTest extends TestCase
 {
     protected static $container;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         static::$container = new \Egg\Container();
         static::$container['cache'] = new \Egg\Cache\Memory();
@@ -66,7 +68,7 @@ class GenericTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    public static function tearDownAfterClass()
+    public static function tearDownAfterClass(): void
     {
         $sql = 'DROP TABLE IF EXISTS `houses`;';
         static::$container['database']->execute($sql);

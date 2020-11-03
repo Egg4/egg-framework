@@ -2,13 +2,14 @@
 
 namespace Egg\Cache;
 
+use \PHPUnit\Framework\TestCase;
 use Egg\Cache\File as FileCache;
 
-class FileTest extends \Egg\Test
+class FileTest extends TestCase
 {
     protected static $cache;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         static::$cache = new FileCache([
             'dir'       => sys_get_temp_dir(),

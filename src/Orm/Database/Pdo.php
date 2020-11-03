@@ -68,7 +68,7 @@ class Pdo extends AbstractDatabase
     public function rollback()
     {
         if (--$this->transactionCount) {
-            $this->exec('ROLLBACK TO transaction_' . $this->transactionCount + 1);
+            $this->exec('ROLLBACK TO transaction_' . ($this->transactionCount + 1));
             return true;
         }
 

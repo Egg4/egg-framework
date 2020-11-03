@@ -2,11 +2,12 @@
 
 namespace Egg\Component\Http;
 
+use \PHPUnit\Framework\TestCase;
 use \Egg\Container;
 use \Egg\Authenticator\Closure as ClosureAuthenticator;
 use \Egg\Component\Http\Authentication as AuthenticationComponent;
 
-class AuthenticationTest extends \Egg\Test
+class AuthenticationTest extends TestCase
 {
     public function testShouldAuthenticate()
     {

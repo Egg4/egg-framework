@@ -2,14 +2,15 @@
 
 namespace Egg\Authenticator;
 
+use \PHPUnit\Framework\TestCase;
 use \Egg\Authenticator\Cache as CacheAuthenticator;
 use \Egg\Cache\Memory as MemoryCache;
 
-class CacheTest extends \Egg\Test
+class CacheTest extends TestCase
 {
     protected static $authenticator;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         static::$authenticator = new CacheAuthenticator([
             'cache' => new MemoryCache(),

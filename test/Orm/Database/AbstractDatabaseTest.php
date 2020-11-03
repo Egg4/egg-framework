@@ -2,9 +2,10 @@
 
 namespace Egg\Orm\Database;
 
+use \PHPUnit\Framework\TestCase;
 use Egg\Orm\Database\Closure as ClosureDatabase;
 
-class AbstractDatabaseTest extends \PHPUnit\Framework\TestCase
+class AbstractDatabaseTest extends TestCase
 {
     public function testShouldPrepareInsert()
     {

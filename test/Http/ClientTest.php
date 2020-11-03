@@ -2,10 +2,11 @@
 
 namespace Egg\Http;
 
+use \PHPUnit\Framework\TestCase;
 use \Egg\Container;
 use \Egg\Component\Closure as ClosureComponent;
 
-class ClientTest extends \Egg\Test
+class ClientTest extends TestCase
 {
     public function testShouldGetData()
     {

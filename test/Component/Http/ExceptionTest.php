@@ -2,9 +2,10 @@
 
 namespace Egg\Component\Http;
 
+use \PHPUnit\Framework\TestCase;
 use \Egg\Component\Http\Exception as ExceptionComponent;
 
-class ExceptionTest extends \Egg\Test
+class ExceptionTest extends TestCase
 {
     public function testShouldReturn200()
     {
@@ -47,10 +48,11 @@ class ExceptionTest extends \Egg\Test
 
         $component = new ExceptionComponent([
             'serializer' => new \Egg\Serializer\Error(),
-        ]);
+        ]);        
         $response = $component($request, $response, function() {
             throw new \Exception();
         });
+
         $responseStatus = $response->getStatusCode();
         $content = $response->getBody()->getContent();
 

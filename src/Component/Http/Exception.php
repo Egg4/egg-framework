@@ -38,13 +38,14 @@ class Exception extends AbstractComponent
             $response->getBody()->setContent($array);
         }
         catch (\Exception $exception) {
-            if ($this->container['environment']['APP_DEBUG']) {
+            if (isset($this->container['environment']['APP_DEBUG'])
+                AND $this->container['environment']['APP_DEBUG']) {
                 throw $exception;
             }
             if (isset($this->container['logger'])) {
                 $this->logException($this->container['logger'], $exception);
             }
-            $response = $this->container['response'] ? $this->container['response'] : $response;
+            $response = isset($this->container['response']) ? $this->container['response'] : $response;
             $response = $this->buildExceptionResponse($response, $exception);
         }
 
@@ -54,7 +55,8 @@ class Exception extends AbstractComponent
     protected function buildExceptionResponse($response, $exception)
     {
         $response = $response->withStatus(500);
-        if ($this->container['environment']['APP_ENV'] == 'dev') {
+        if (isset($this->container['environment']['APP_ENV'])
+            AND $this->container['environment']['APP_ENV'] == 'dev') {
             $message = $this->buildExceptionMessage($exception);
         }
         else {

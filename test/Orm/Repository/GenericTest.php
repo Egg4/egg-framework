@@ -2,6 +2,7 @@
 
 namespace Egg\Orm\Repository;
 
+use \PHPUnit\Framework\TestCase;
 use Egg\Container;
 use Egg\Orm\Database\Closure as ClosureDatabase;
 use Egg\Orm\Statement\Closure as ClosureStatement;
@@ -9,9 +10,9 @@ use Egg\Orm\Repository\Generic as GenericRepository;
 use Egg\Orm\EntitySet\Generic as EntitySet;
 use Egg\Orm\Entity\Generic as Entity;
 
-class GenericTest extends \PHPUnit\Framework\TestCase
+class GenericTest extends TestCase
 {
-    public function testShouldInsertData()
+    public function testShouldInsertData(): void
     {
         $data = [
             'login'     => 'login',

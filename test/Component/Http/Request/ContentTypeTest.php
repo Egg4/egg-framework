@@ -2,11 +2,12 @@
 
 namespace Egg\Component\Http\Request;
 
+use \PHPUnit\Framework\TestCase;
 use \Egg\Container;
 use \Egg\Component\Http\Request\ContentType as ContentTypeComponent;
 use \Egg\Parser\Closure as ClosureParser;
 
-class ContentTypeTest extends \Egg\Test
+class ContentTypeTest extends TestCase
 {
     public function testShouldReturnParsedBody()
     {

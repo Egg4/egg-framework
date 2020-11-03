@@ -2,17 +2,18 @@
 
 namespace Egg\Validator;
 
+use \PHPUnit\Framework\TestCase;
 use \Egg\Container;
 use \Egg\Validator\Generic as GenericValidator;
 use \Egg\Orm\Repository\Closure as ClosureRepository;
 use \Egg\Orm\Schema\File as FileSchema;
 use \Egg\Parser\Json as JsonParser;
 
-class GenericTest extends \Egg\Test
+class GenericTest extends TestCase
 {
     protected static $container;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         static::$container = new \Egg\Container([
             'request'   => \Egg\FactoryTest::createRequest(),
@@ -51,7 +52,7 @@ class GenericTest extends \Egg\Test
             $this->assertEquals(400, $exception->getStatus());
             $errors = $exception->getErrors();
             $this->assertEquals('not_found', $errors[0]->getName());
-            $this->assertContains('not found', $errors[0]->getDescription());
+            $this->assertStringContainsString('not found', $errors[0]->getDescription());
             throw $exception;
         }
     }
@@ -71,7 +72,7 @@ class GenericTest extends \Egg\Test
             $this->assertEquals(400, $exception->getStatus());
             $errors = $exception->getErrors();
             $this->assertEquals('invalid_content', $errors[0]->getName());
-            $this->assertContains('is required', $errors[0]->getDescription());
+            $this->assertStringContainsString('is required', $errors[0]->getDescription());
             throw $exception;
         }
     }
@@ -94,7 +95,7 @@ class GenericTest extends \Egg\Test
             $this->assertEquals(400, $exception->getStatus());
             $errors = $exception->getErrors();
             $this->assertEquals('invalid_content', $errors[0]->getName());
-            $this->assertContains('is null', $errors[0]->getDescription());
+            $this->assertStringContainsString('is null', $errors[0]->getDescription());
             throw $exception;
         }
     }
@@ -117,7 +118,7 @@ class GenericTest extends \Egg\Test
             $this->assertEquals(400, $exception->getStatus());
             $errors = $exception->getErrors();
             $this->assertEquals('invalid_content', $errors[0]->getName());
-            $this->assertContains('integer expected', $errors[0]->getDescription());
+            $this->assertStringContainsString('integer expected', $errors[0]->getDescription());
             throw $exception;
         }
     }
@@ -140,7 +141,7 @@ class GenericTest extends \Egg\Test
             $this->assertEquals(400, $exception->getStatus());
             $errors = $exception->getErrors();
             $this->assertEquals('invalid_content', $errors[0]->getName());
-            $this->assertContains('unsigned expected', $errors[0]->getDescription());
+            $this->assertStringContainsString('unsigned expected', $errors[0]->getDescription());
             throw $exception;
         }
     }
@@ -171,7 +172,7 @@ class GenericTest extends \Egg\Test
             $this->assertEquals(400, $exception->getStatus());
             $errors = $exception->getErrors();
             $this->assertEquals('invalid_content', $errors[0]->getName());
-            $this->assertContains('max length', $errors[0]->getDescription());
+            $this->assertStringContainsString('max length', $errors[0]->getDescription());
             throw $exception;
         }
     }
@@ -202,7 +203,7 @@ class GenericTest extends \Egg\Test
             $this->assertEquals(400, $exception->getStatus());
             $errors = $exception->getErrors();
             $this->assertEquals('not_found', $errors[0]->getName());
-            $this->assertContains('not found', $errors[0]->getDescription());
+            $this->assertStringContainsString('not found', $errors[0]->getDescription());
             throw $exception;
         }
     }
@@ -232,7 +233,7 @@ class GenericTest extends \Egg\Test
             $this->assertEquals(400, $exception->getStatus());
             $errors = $exception->getErrors();
             $this->assertEquals('not_unique', $errors[0]->getName());
-            $this->assertContains('not unique', $errors[0]->getDescription());
+            $this->assertStringContainsString('not unique', $errors[0]->getDescription());
             throw $exception;
         }
     }

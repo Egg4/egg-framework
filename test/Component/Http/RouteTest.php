@@ -2,10 +2,11 @@
 
 namespace Egg\Component\Http;
 
+use \PHPUnit\Framework\TestCase;
 use \Egg\Container;
 use \Egg\Component\Http\Route as RouteComponent;
 
-class RouteTest extends \Egg\Test
+class RouteTest extends TestCase
 {
     public function testShouldDispatchToSelectRoute()
     {

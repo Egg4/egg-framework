@@ -2,11 +2,12 @@
 
 namespace Egg\Controller;
 
+use \PHPUnit\Framework\TestCase;
 use \Egg\Container;
 use \Egg\Controller\Generic as GenericController;
 use \Egg\Orm\Repository\Closure as ClosureRepository;
 
-class GenericTest extends \Egg\Test
+class GenericTest extends TestCase
 {
     public function testShouldCreateResource()
     {

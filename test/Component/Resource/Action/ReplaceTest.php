@@ -2,6 +2,7 @@
 
 namespace Egg\Component\Resource\Action;
 
+use \PHPUnit\Framework\TestCase;
 use \Egg\Container;
 use \Egg\Component\Resource\Action\Replace as ReplaceComponent;
 use \Egg\Authorizer\Closure as ClosureAuthorizer;
@@ -9,7 +10,7 @@ use \Egg\Validator\Closure as ClosureValidator;
 use \Egg\Controller\Closure as ClosureController;
 use \Egg\Serializer\Closure as ClosureSerializer;
 
-class ReplaceTest extends \Egg\Test
+class ReplaceTest extends TestCase
 {
     public function testShouldReturn200()
     {

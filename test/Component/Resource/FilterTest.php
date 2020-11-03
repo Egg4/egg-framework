@@ -2,9 +2,10 @@
 
 namespace Egg\Component\Resource;
 
+use \PHPUnit\Framework\TestCase;
 use \Egg\Component\Resource\Filter as FilterComponent;
 
-class FilterTest extends \Egg\Test
+class FilterTest extends TestCase
 {
     public function testShouldReturnFilter()
     {

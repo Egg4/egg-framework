@@ -2,11 +2,12 @@
 
 namespace Egg\Component;
 
+use \PHPUnit\Framework\TestCase;
 use Egg\Component\Collection as ComponentCollection;
 use Egg\Component\Noop as NoopComponent;
 use Egg\Container;
 
-class CollectionTest extends \Egg\Test
+class CollectionTest extends TestCase
 {
     public function testShouldRaiseComponentAlreadyRegisteredException()
     {

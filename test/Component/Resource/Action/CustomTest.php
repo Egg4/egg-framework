@@ -2,13 +2,14 @@
 
 namespace Egg\Component\Resource\Action;
 
+use \PHPUnit\Framework\TestCase;
 use \Egg\Container;
 use \Egg\Component\Resource\Action\Custom as CustomComponent;
 use \Egg\Authorizer\Closure as ClosureAuthorizer;
 use \Egg\Validator\Closure as ClosureValidator;
 use \Egg\Controller\Closure as ClosureController;
 
-class CustomTest extends \Egg\Test
+class CustomTest extends TestCase
 {
     public function testShouldReturn200()
     {

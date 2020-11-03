@@ -2,10 +2,11 @@
 
 namespace Egg\Component\Resource;
 
+use \PHPUnit\Framework\TestCase;
 use \Egg\Container;
 use \Egg\Component\Resource\Resource as ResourceComponent;
 
-class ResourceTest extends \Egg\Test
+class ResourceTest extends TestCase
 {
     public function testShouldReturnResource()
     {

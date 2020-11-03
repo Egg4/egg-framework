@@ -2,13 +2,14 @@
 
 namespace Egg\Cache;
 
+use \PHPUnit\Framework\TestCase;
 use Egg\Cache\Memory as MemoryCache;
 
-class MemoryTest extends \Egg\Test
+class MemoryTest extends TestCase
 {
     protected static $cache;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         static::$cache = new MemoryCache();
     }

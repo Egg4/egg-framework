@@ -2,6 +2,7 @@
 
 namespace Egg\Component\Resource\Action;
 
+use \PHPUnit\Framework\TestCase;
 use \Egg\Container;
 use \Egg\Component\Resource\Action\Create as CreateComponent;
 use \Egg\Authorizer\Closure as ClosureAuthorizer;
@@ -9,7 +10,7 @@ use \Egg\Validator\Closure as ClosureValidator;
 use \Egg\Controller\Closure as ClosureController;
 use \Egg\Serializer\Closure as ClosureSerializer;
 
-class CreateTest extends \Egg\Test
+class CreateTest extends TestCase
 {
     public function testShouldReturn201()
     {
@@ -62,7 +63,7 @@ class CreateTest extends \Egg\Test
 
         $response = $component($request, $response);
         $this->assertEquals(201, $response->getStatusCode());
-        $this->assertContains((string) $request->getUri() . '/' . $result->id, $response->getHeaderLine('Location'));
+        $this->assertStringContainsString((string) $request->getUri() . '/' . $result->id, $response->getHeaderLine('Location'));
         $this->assertEquals('result', $response->getBody()->getContent());
     }
 }

@@ -2,9 +2,10 @@
 
 namespace Egg\Component\Http;
 
+use \PHPUnit\Framework\TestCase;
 use \Egg\Component\Http\Cors as CorsComponent;
 
-class CorsTest extends \Egg\Test
+class CorsTest extends TestCase
 {
     public function testShouldReturn200ByDefault()
     {

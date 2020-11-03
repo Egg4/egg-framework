@@ -2,13 +2,14 @@
 
 namespace Egg\Authenticator;
 
+use \PHPUnit\Framework\TestCase;
 use \Egg\Authenticator\Token as TokenAuthenticator;
 
-class TokenTest extends \Egg\Test
+class TokenTest extends TestCase
 {
     protected static $authenticator;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         static::$authenticator = new TokenAuthenticator([
             'secret' => 'sfG684sqHJsdf54sf6ds4F56ds4f64Et',

@@ -2,10 +2,11 @@
 
 namespace Egg\Component\Response;
 
+use \PHPUnit\Framework\TestCase;
 use \Egg\Container;
 use \Egg\Component\Http\Response\ContentType as ContentTypeComponent;
 
-class ContentTypeTest extends \Egg\Test
+class ContentTypeTest extends TestCase
 {
     public function testShouldReturnFormattedBody()
     {

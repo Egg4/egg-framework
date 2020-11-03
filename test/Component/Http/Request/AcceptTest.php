@@ -2,9 +2,10 @@
 
 namespace Egg\Component\Http\Request;
 
+use \PHPUnit\Framework\TestCase;
 use \Egg\Component\Http\Request\Accept as AcceptComponent;
 
-class AcceptTest extends \Egg\Test
+class AcceptTest extends TestCase
 {
     public function testShouldSetResponseContentType()
     {
@@ -18,7 +19,7 @@ class AcceptTest extends \Egg\Test
         ]);
         $response = $component($request, $response);
 
-        $this->assertContains('application/json', $response->getHeaderLine('Content-Type'));
+        $this->assertStringContainsString('application/json', $response->getHeaderLine('Content-Type'));
     }
 
     public function testShouldThrowExceptionWithNotAcceptableContentType()

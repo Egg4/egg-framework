@@ -2,11 +2,12 @@
 
 namespace Egg\Component\Resource;
 
+use \PHPUnit\Framework\TestCase;
 use \Egg\Container;
 use \Egg\Component\Resource\Transaction as TransactionComponent;
 use \Egg\Orm\Database\Closure as ClosureDatabase;
 
-class TransactionTest extends \Egg\Test
+class TransactionTest extends TestCase
 {
     public function testShouldCommitTransaction()
     {
@@ -52,23 +53,5 @@ class TransactionTest extends \Egg\Test
         $component($request, $response, function() {
             throw new \Exception();
         });
-    }
-
-    public function testShouldSkipTransaction()
-    {
-        $container = new Container([
-            'router'    => \Egg\FactoryTest::createRouter(),
-            'database'  => new ClosureDatabase(function() {
-                $this->fail();
-            }),
-        ]);
-        $request = \Egg\FactoryTest::createRequest();
-        $route = $container['router']->map('read', 'GET', '');
-        $request = $request->withAttribute('route', $route);
-        $response = \Egg\FactoryTest::createResponse();
-
-        $component = new TransactionComponent();
-        $component->setContainer($container);
-        $component($request, $response);
     }
 }
