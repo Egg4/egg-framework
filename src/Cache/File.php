@@ -14,8 +14,9 @@ class File extends AbstractCache
         if (is_null($this->settings['dir'])) {
             throw new \Exception('Cache file dir not set');
         }
-        else {
-            $this->settings['dir'] = rtrim($this->settings['dir'], '\\/');
+        $this->settings['dir'] = rtrim($this->settings['dir'], '\\/');
+        if (!file_exists($this->settings['dir'])) {
+            mkdir($this->settings['dir'], 0777, true);
         }
     }
 
