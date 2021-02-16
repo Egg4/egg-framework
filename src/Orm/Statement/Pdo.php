@@ -5,13 +5,13 @@ namespace Egg\Orm\Statement;
 class Pdo extends AbstractStatement
 {
     protected $pdoStatement;
-
+    
     public function __construct(\PDOStatement $pdoStatement)
     {
         $this->pdoStatement = $pdoStatement;
         $this->meta = $this->getMeta();
     }
-
+    
     protected function getMeta()
     {
         $meta = [];
@@ -21,55 +21,58 @@ class Pdo extends AbstractStatement
                 $meta[$i] = $this->pdoStatement->getColumnMeta($i);
             }
         }
-
+        
         return $meta;
     }
-
+    
     public function entityCount()
     {
         return $this->pdoStatement->rowCount();
     }
-
-    public function fetchEntitySet($entitySetClass, $entityClass)
+    
+    public function fetchEntitySet(
+        $entitySetClass = \Egg\Orm\EntitySet\Generic::class,
+        $entityClass = \Egg\Orm\Entity\Generic::class
+        )
     {
         $entityBase = new $entityClass;
-
+        
         $results = [];
         while($row = $this->fetchRow()) {
             $entity = clone $entityBase;
             $entity->hydrate($row);
             $results[] = $entity;
         }
-
+        
         return new $entitySetClass($results);
     }
-
-    public function fetchEntity($entityClass)
+    
+    public function fetchEntity($entityClass = \Egg\Orm\Entity\Generic::class)
     {
         $row = $this->fetchRow();
         if (!$row) return null;
-
+        
         $entity = new $entityClass;
         $entity->hydrate($row);
-
+        
         return $entity;
     }
-
+    
     protected function fetchRow()
     {
         $row = $this->pdoStatement->fetch(\PDO::FETCH_NUM);
         if (!$row) return null;
-
+        
         $data = [];
         foreach($row as $i => $value) {
             $key = $this->meta[$i]['name'];
             $type = $this->meta[$i]['native_type'];
             $data[$key] = $this->castValue($value, $type);
         }
-
+        
         return $data;
     }
-
+    
     protected function castValue($value, $type)
     {
         if (is_null($value)) {

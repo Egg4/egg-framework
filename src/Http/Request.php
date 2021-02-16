@@ -8,6 +8,7 @@ class Request extends \Slim\Http\Request
     {
         $method = $environment['REQUEST_METHOD'];
         $uri = \Slim\Http\Uri::createFromEnvironment($environment);
+        $uri = $uri->withPath(str_replace('-', '_', $uri->getPath()));
         $headers = \Slim\Http\Headers::createFromEnvironment($environment);
         $cookies = \Slim\Http\Cookies::parseHeader($headers->get('Cookie', []));
         $serverParams = $environment->all();
@@ -16,15 +17,16 @@ class Request extends \Slim\Http\Request
         rewind($stream);
         $body = new Body($stream);
         $uploadedFiles = \Slim\Http\UploadedFile::createFromEnvironment($environment);
-
+        
         return new static($method, $uri, $headers, $cookies, $serverParams, $body, $uploadedFiles);
     }
-
+    
     public static function create($env = [], array $headers = [], $body = null)
     {
         $environment = is_array($env) ? \Egg\Http\Environment::create($env) : $env;
         $method = $environment['REQUEST_METHOD'];
         $uri = \Slim\Http\Uri::createFromEnvironment($environment);
+        $uri = $uri->withPath(str_replace('-', '_', $uri->getPath()));
         $envHeaders = \Slim\Http\Headers::createFromEnvironment($environment);
         foreach($headers as $name => $value) {
             $envHeaders->set($name, $value);
@@ -37,7 +39,7 @@ class Request extends \Slim\Http\Request
             $body->write($body->getContent());
         }
         $uploadedFiles = \Slim\Http\UploadedFile::createFromEnvironment($environment);
-
+        
         return new static($method, $uri, $headers, $cookies, $serverParams, $body, $uploadedFiles);
     }
 }
